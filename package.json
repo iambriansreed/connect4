@@ -1,0 +1,20 @@
+{
+  "name": "connect4",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:css": "node-sass style.scss css/style.css --source-map true",
+    "watch:css": "node-sass style.scss css/style.css -w --source-map true",
+    "build:js": "node build.js",
+    "build": "npm run build:css && npm run build:js",
+    "start" : "npm run build && http-server -o"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@webcomponents/webcomponentsjs": "github:webcomponents/webcomponentsjs",
+    "node-sass": "^4.7.2"
+  }
+}

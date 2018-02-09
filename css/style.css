@@ -1,0 +1,179 @@
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline; }
+
+* {
+  box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  text-align: center; }
+
+.board {
+  display: inline-block; }
+  .board.turn-red .buttons button:hover .checker {
+    background: red; }
+  .board.turn-yellow .buttons button:hover .checker {
+    background: yellow; }
+  .board .buttons {
+    border: solid 1px transparent;
+    overflow: hidden;
+    width: 482px; }
+    .board .buttons button {
+      outline: none !important;
+      border: solid 2px transparent;
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
+      padding: 0; }
+      .board .buttons button .checker {
+        opacity: 0.2; }
+      .board .buttons button:hover .checker {
+        display: block;
+        opacity: 1; }
+  .board .spaces {
+    border: solid 1px transparent;
+    background: blue;
+    overflow: hidden;
+    width: 482px;
+    height: 482px; }
+    .board .spaces > div {
+      position: relative;
+      border: solid 2px transparent;
+      width: 60px;
+      height: 60px;
+      float: left;
+      clear: none; }
+      .board .spaces > div .placeholder {
+        background: #fff;
+        width: 50px;
+        height: 50px;
+        border-radius: 50px;
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        z-index: 1; }
+      .board .spaces > div .checker {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 2; }
+  .board .checker {
+    width: 56px;
+    height: 56px;
+    border-radius: 56px;
+    border: solid 3px rgba(0, 0, 0, 0.25);
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.25);
+    background: #ccc; }
+    .board .checker.red {
+      background: red; }
+    .board .checker.yellow {
+      background: yellow; }
+
+.game-over {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  background-color: rgba(0, 0, 0, 0.75); }
+  .game-over .modal {
+    position: absolute;
+    z-index: 101;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); }
+    .game-over .modal h1 {
+      color: #fff;
+      font-size: 50px;
+      text-shadow: 0 0 10px rgba(0, 0, 0, 0.75); }
+    .game-over .modal a {
+      color: #ccc; }
+
+/*# sourceMappingURL=style.css.map */
