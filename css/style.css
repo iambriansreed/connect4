@@ -154,12 +154,13 @@ body {
     .board .checker.yellow {
       background: yellow; }
 
-.ai-controls {
-  text-align: center; }
-  .ai-controls label {
+form[name="settings"] {
+  text-align: center;
+  display: block; }
+  form[name="settings"] label {
     display: inline-block;
     padding: 10px 10px; }
-    .ai-controls label input[type="radio"] {
+    form[name="settings"] label input[type="radio"] {
       vertical-align: text-bottom;
       margin-right: 7px; }
 

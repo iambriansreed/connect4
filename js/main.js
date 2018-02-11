@@ -30,15 +30,6 @@ class Connect4 {
         this.reset = document.querySelector('button.reset');
         this.start = document.querySelector('button.start');
 
-        document.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.onclick = () => {
-                this[radio.name] = radio.value;
-            };
-        });
-        document.querySelectorAll('input[type="radio"][checked]').forEach(radio => {
-            this[radio.name] = radio.value;
-        });
-  
         this.reset.onclick = () => {
             window.location.reload();
         }
@@ -95,11 +86,9 @@ class Connect4 {
                 type: 'horizontal -',
                 getFirst: (pos) => ({
                     y: pos.y,
-                    x: pos.x - 3,
+                    x: 0,
                 }),
                 getNext: (pos, originalPosition) => {
-                    if (originalPosition.x + 3 === pos.x)
-                        return false;
                     return {
                         y: pos.y,
                         x: pos.x + 1,
@@ -110,7 +99,7 @@ class Connect4 {
                 type: 'vertical |',
                 getFirst: (pos) => ({
                     x: pos.x,
-                    y: pos.y - 3,
+                    y: 0,
                 }),
                 getNext: (pos, originalPosition) => ({
                     x: pos.x,
@@ -202,16 +191,22 @@ class Connect4 {
     }
 
     aiMove() {
-        if (this.ai === 'random') {
-            this.onDropChecker(this.getRandomMinMax(0, 7));
-        }
-        if (this.ai === 'defensive') {
-            this.onDropChecker(this.getRandomMinMax(0, 7));
+        const rand = this.getRandomMinMax(0, 7);
+        const ai = document.settings.ai.value;
 
+        if (ai === 'random') {
+            this.onDropChecker(rand);
         }
-        if (this.ai === 'offensive') {
-            this.onDropChecker(this.getRandomMinMax(0, 7));
+        if (ai === 'defensive') {
+            this.onDropChecker(rand);
         }
+        if (ai === 'offensive') {
+            this.onDropChecker(rand);
+        }
+        if (ai === 'stupid') {
+            this.onDropChecker(rand < 3 ? 0 : 7);
+        }
+
         console.log('AI just made a ' + this.ai + ' move.');
     }
 

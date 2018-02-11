@@ -185,9 +185,9 @@ $size: 60px;
     }
   }
 }
-.ai-controls {
-  
+form[name="settings"] {
   text-align: center;
+  display: block;
   label {
     display: inline-block;
     padding: 10px 10px;
