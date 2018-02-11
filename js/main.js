@@ -25,12 +25,26 @@ class Connect4 {
         this.buttonsWrapper = document.querySelector('.buttons');
         this.spacesWrapper = document.querySelector('.spaces');
         this.gameOver = document.querySelector('.game-over');
+        this.gameStart = document.querySelector('.game-start');
         this.turnColor = document.querySelectorAll('.turn-color');
-        this.reset = document.querySelector('a.reset');
+        this.reset = document.querySelector('button.reset');
+        this.start = document.querySelector('button.start');
 
-        this.reset.onclick = (e) => {
-            e.preventDefault();
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.onclick = () => {
+                this[radio.name] = radio.value;
+            };
+        });
+        document.querySelectorAll('input[type="radio"][checked]').forEach(radio => {
+            this[radio.name] = radio.value;
+        });
+  
+        this.reset.onclick = () => {
             window.location.reload();
+        }
+
+        this.start.onclick = () => {
+            this.gameStart.style.display = 'none';
         }
 
         this.spaces = {};
@@ -75,26 +89,30 @@ class Connect4 {
     checkForWin() {
 
         const isValidPosition = (pos) =>
-            pos.x < 8 && pos.y < 8 && pos.x > -1 && pos.y > -1;
+            pos && pos.x < 8 && pos.y < 8 && pos.x > -1 && pos.y > -1;
 
         const checks = [{
                 type: 'horizontal -',
                 getFirst: (pos) => ({
                     y: pos.y,
-                    x: 0,
+                    x: pos.x - 3,
                 }),
-                getNext: (pos) => ({
-                    y: pos.y,
-                    x: pos.x + 1,
-                })
+                getNext: (pos, originalPosition) => {
+                    if (originalPosition.x + 3 === pos.x)
+                        return false;
+                    return {
+                        y: pos.y,
+                        x: pos.x + 1,
+                    };
+                }
             },
             {
                 type: 'vertical |',
                 getFirst: (pos) => ({
                     x: pos.x,
-                    y: 0,
+                    y: pos.y - 3,
                 }),
-                getNext: (pos) => ({
+                getNext: (pos, originalPosition) => ({
                     x: pos.x,
                     y: pos.y + 1,
                 })
@@ -142,6 +160,7 @@ class Connect4 {
 
         let win = false;
         checks.forEach(check => {
+            const originalPosition = this.lastPosition;
             let pos = check.getFirst(this.lastPosition);
             let group = [];
             while (isValidPosition(pos)) {
@@ -161,7 +180,7 @@ class Connect4 {
                 } else {
                     group = [];
                 }
-                pos = check.getNext(pos);
+                pos = check.getNext(pos, originalPosition);
             }
         });
 
@@ -169,15 +188,37 @@ class Connect4 {
     }
 
     onDropChecker(y) {
-        if (this.dropChecker(y)) {
-
+        const turnComplete = this.dropChecker(y);
+        if (turnComplete) {
             if (this.checkForWin()) {
                 this.gameOver.style.display = 'block';
                 return;
             }
-
             this.toggleTurn();
         }
+        if (this.turn === color.yellow) {
+            this.aiMove();
+        }
+    }
+
+    aiMove() {
+        if (this.ai === 'random') {
+            this.onDropChecker(this.getRandomMinMax(0, 7));
+        }
+        if (this.ai === 'defensive') {
+            this.onDropChecker(this.getRandomMinMax(0, 7));
+
+        }
+        if (this.ai === 'offensive') {
+            this.onDropChecker(this.getRandomMinMax(0, 7));
+        }
+        console.log('AI just made a ' + this.ai + ' move.');
+    }
+
+    getRandomMinMax(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
     }
 
     toggleTurn() {
@@ -190,7 +231,7 @@ class Connect4 {
     }
 
     dropChecker(x) {
-
+        console.log(x);
         let dropped = false;
         Connect4.iterator((y) => {
             if (this.spaces[x][y].checker)

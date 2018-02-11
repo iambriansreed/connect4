@@ -185,8 +185,20 @@ $size: 60px;
     }
   }
 }
-
-.game-over {
+.ai-controls {
+  
+  text-align: center;
+  label {
+    display: inline-block;
+    padding: 10px 10px;
+    input[type="radio"] {
+      vertical-align: text-bottom;
+      margin-right: 7px;
+    }
+  }
+}
+.game-over,
+.game-start {
   display: none;
   position: fixed;
   top: 0;
@@ -196,18 +208,30 @@ $size: 60px;
   z-index: 100;
   background-color: rgba(0, 0, 0, 0.75);
   .modal {
+    background: #fff;
     position: absolute;
     z-index: 101;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    h1 {
-      color: #fff;
-      font-size: 50px;
-      text-shadow: 0 0 10px rgba(0, 0, 0, 0.75);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.75);
+    padding: 20px;
+    border-radius: 5px;
+    p {
+      margin-bottom: 20px;
     }
-    a {
-      color: #ccc;
+    h1 {
+      font-size: 50px;
+      margin-bottom: 20px;
+    }
+    button {
+      background: #eee;
+      border-color: #aaa;
+      border-radius: 5px;
+      padding: 5px;
+      font: inherit;
+      cursor: pointer;
+      font-size: 110%;
     }
   }
 }

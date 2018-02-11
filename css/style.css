@@ -154,7 +154,17 @@ body {
     .board .checker.yellow {
       background: yellow; }
 
-.game-over {
+.ai-controls {
+  text-align: center; }
+  .ai-controls label {
+    display: inline-block;
+    padding: 10px 10px; }
+    .ai-controls label input[type="radio"] {
+      vertical-align: text-bottom;
+      margin-right: 7px; }
+
+.game-over,
+.game-start {
   display: none;
   position: fixed;
   top: 0;
@@ -163,17 +173,32 @@ body {
   height: 100%;
   z-index: 100;
   background-color: rgba(0, 0, 0, 0.75); }
-  .game-over .modal {
+  .game-over .modal,
+  .game-start .modal {
+    background: #fff;
     position: absolute;
     z-index: 101;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); }
-    .game-over .modal h1 {
-      color: #fff;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.75);
+    padding: 20px;
+    border-radius: 5px; }
+    .game-over .modal p,
+    .game-start .modal p {
+      margin-bottom: 20px; }
+    .game-over .modal h1,
+    .game-start .modal h1 {
       font-size: 50px;
-      text-shadow: 0 0 10px rgba(0, 0, 0, 0.75); }
-    .game-over .modal a {
-      color: #ccc; }
+      margin-bottom: 20px; }
+    .game-over .modal button,
+    .game-start .modal button {
+      background: #eee;
+      border-color: #aaa;
+      border-radius: 5px;
+      padding: 5px;
+      font: inherit;
+      cursor: pointer;
+      font-size: 110%; }
 
 /*# sourceMappingURL=style.css.map */

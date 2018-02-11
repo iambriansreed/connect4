@@ -17,17 +17,39 @@
 
     <h1></h1>
 
+    <div class="game-start" style="display: block;">
+        <div class="modal">
+            <h1>Welcome!</h1>
+            <p>
+                You are red.
+                <br> Computer is yellow.
+            </p>
+            <p>
+                <button type="button" class="start">Start</button>
+            </p>
+        </div>
+    </div>
+
     <div class="board">
         <div class="buttons"></div>
         <div class="spaces"></div>
     </div>
+    <p class="ai-controls">
+        <label>
+            <input type="radio" name="ai" value="random" checked>Random</label>
+        <label>
+            <input type="radio" name="ai" value="defensive">Defensive</label>
+        <label>
+            <input type="radio" name="ai" value="offensive">Offensive</label>
+
+    </p>
 
     <div class="game-over">
         <div class="modal">
             <h1>
                 <span class="turn-color"></span> Wins!</h1>
             <p>
-                <a href="#" class="reset">Reset</a>
+                <button type="button" class="reset">Reset</button>
             </p>
         </div>
     </div>

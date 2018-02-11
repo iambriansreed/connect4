@@ -9,7 +9,7 @@
     "watch:css": "node-sass style.scss css/style.css -w --source-map true",
     "build:js": "node build.js",
     "build": "npm run build:css && npm run build:js",
-    "start" : "npm run build && http-server -o"
+    "start" : "npm run build && live-server"
   },
   "author": "",
   "license": "ISC",
