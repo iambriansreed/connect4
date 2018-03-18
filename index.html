@@ -17,7 +17,7 @@
 
     <h1></h1>
 
-    <div class="game-start" style="display: block;">
+    <div id="game-start" style="display: block;">
         <div class="modal">
             <h1>Welcome!</h1>
             <p>
@@ -25,17 +25,19 @@
                 <br> Computer is yellow.
             </p>
             <p>
-                <button type="button" class="start">Start</button>
+                <button type="button" id="start-btn">Start</button>
             </p>
         </div>
     </div>
 
-    <div class="board">
+    <div id="board">
         <div class="buttons"></div>
         <div class="spaces"></div>
+        <div class="checker"></div>
     </div>
 
     <form name="settings">
+        <span class="title">AI Type: </span>
         <label>
             <input type="radio" name="ai" value="random">Random
         </label>
@@ -50,17 +52,17 @@
         </label>
     </form>
 
-    <div class="game-over">
+    <div id="game-over">
         <div class="modal">
             <h1>
                 <span class="turn-color"></span> Wins!</h1>
             <p>
-                <button type="button" class="reset">Reset</button>
+                <button type="button" id="reset-btn">Reset</button>
             </p>
         </div>
     </div>
 
-    <script src="js/main.js?v=0.1"></script>
+    <script src="js/bundle.js?v=0.1"></script>
 </body>
 
 </html>
