@@ -26,7 +26,7 @@ class Connect4 {
             window.location.reload();
         }
 
-        this.gameStart.style.display = 'none';
+        this.gameStart.style.display = 'block';
         this.start.onclick = () => {
             this.gameStart.style.display = 'none';
         }
