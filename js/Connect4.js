@@ -2,27 +2,28 @@ const Players = {
   player1: 'player1',
   player2: 'player2'
 };
-Object.freeze(Players);
 
 const AiTypes = {
   random: 'random',
   defensive: 'defensive',
   offensive: 'offensive'
 };
-Object.freeze(AiTypes);
 
 const config = {
   checkerSize: 60,
   dropSpeed: 300,
   defaultState: {
-    lastPosition: null,
     currentPlayer: Players.player1,
-    aiPlayers: [Players.player2]
-  }
+    aiPlayers: [Players.player2],
+    places: []
+  },
+  aiType: AiTypes.defensive
 };
+Object.freeze(Players);
+Object.freeze(AiTypes);
 Object.freeze(config);
 
-const { wait, getRanges } = Utilities;
+const { wait, getSets } = Utilities;
 
 function Connect4() {
   const app = initialize();
@@ -30,33 +31,37 @@ function Connect4() {
   const state = { ...config.defaultState };
 
   function initialize() {
-    document.settings.ai.value = AiTypes.random;
+    document.settings.ai.value = config.aiType;
+    const getElements = selector =>
+      Array.from(document.querySelectorAll(selector));
+    const getElement = selector => getElements(selector)[0];
     const app = {
-      board: document.getElementById('board'),
-      buttons: Array.from(document.querySelectorAll('.buttons button')),
-      buttonBlock: document.querySelector('.buttons .blocker'),
-      spacesWrapper: document.getElementsByClassName('spaces')[0],
-      gameOver: document.getElementById('game-over'),
-      gameStart: document.getElementById('game-start'),
-      turnColor: Array.from(document.getElementsByClassName('turn-color')),
-      reset: document.getElementById('reset-btn'),
-      start: document.getElementById('start-btn'),
-      animatedChecker: document.getElementsByClassName('animated-checker')[0],
-      spaces: {}
+      board: getElement('#board'),
+      buttonBlock: getElement('#board .buttons .blocker'),
+      gameOver: getElement('#game-over'),
+      gameStart: getElement('#game-start'),
+      reset: getElement('#reset-btn'),
+      start: getElement('#start-btn'),
+      buttons: getElements('#board .buttons button'),
+      spacesWrapper: getElements('#board .spaces'),
+      turnColor: getElements('.turn-color')
     };
     app.start.onclick = () => hideElements(app.gameStart);
     app.reset.onclick = () => reset();
     app.buttons.forEach((button, x) => (button.onclick = () => dropChecker(x)));
-    for (let y = 0; y < 8; y++) {
-      for (let x = 0; x < 8; x++) {
-        const key = `${x}-${y}`;
-        const element = document.getElementById(`pos-${key}`);
-        app.spaces[key] = { x, y, element, checker: false };
-        app.spaces[key].element.onclick = () => console.log(x, y);
-      }
-    }
     Object.freeze(app);
     return app;
+  }
+
+  function getPlayer(x, y) {
+    return (state.places.find(p => p.x === x && p.y === y) || {}).player;
+  }
+
+  function addPlace(x, y, player) {
+    updateState({
+      places: [...state.places, { x, y, player }],
+      lastPosition: { x, y }
+    });
   }
 
   function updateState(update) {
@@ -71,25 +76,11 @@ function Connect4() {
     elements.forEach(el => (el.style.display = 'none'));
   }
 
-  function checkForWin() {
-    const ranges = getRanges(state.lastPosition.x, state.lastPosition.y);
-    let winningSet = [];
-    Object.keys(ranges).some(rangeType => {
-      const points = ranges[rangeType]();
-      if (points.length < 4) {
-        return false;
-      }
-      return points.some((pos, pointIndex) => {
-        const space = getSpace(...pos);
-        if (space.checker !== state.currentPlayer) {
-          winningSet = [];
-          return false;
-        }
-        winningSet.push(pos);
-        return winningSet.length === 4;
-      });
-    });
-    return winningSet.length === 4 ? winningSet : false;
+  function checkForWin(x, y) {
+    const sets = getSets(x, y);
+    return sets.some(set =>
+      set.every(pos => getPlayer(...pos) === state.currentPlayer)
+    );
   }
 
   function dropChecker(x) {
@@ -97,19 +88,21 @@ function Connect4() {
     const y = getAvailableY(x);
     if (y < 0) return;
     return animateChecker(x, y).then(() => {
-      getSpace(x, y).checker = state.currentPlayer;
-      updateState({ lastPosition: { x, y } });
+      addPlace(x, y, state.currentPlayer);
       hideElements(app.buttonBlock);
-      const winningSet = checkForWin();
+      const winningSet = checkForWin(x, y);
       if (winningSet) {
         return wait(250).then(() => showElements(app.gameOver));
       }
-      return toggleTurn();
+      toggleTurn();
+      if (state.aiPlayers.includes(state.currentPlayer)) {
+        return aiMove();
+      }
+      return Promise.resolve();
     });
   }
 
   function reset() {
-    Object.keys(app.spaces).forEach(key => (app.spaces[key].checker = false));
     const oldCheckers = Array.from(document.getElementsByClassName('checker'));
     oldCheckers.forEach(
       c => (c.style.top = window.outerHeight + window.outerHeight / 2 + 'px')
@@ -136,13 +129,9 @@ function Connect4() {
     });
   }
 
-  function getSpace(x, y) {
-    return app.spaces[`${x}-${y}`];
-  }
-
   function getAvailableY(x) {
     for (let y = 0; y < 8; y++) {
-      if (!getSpace(x, y).checker) return y;
+      if (!getPlayer(x, y)) return y;
     }
     return -1;
   }
@@ -156,7 +145,7 @@ function Connect4() {
       // 1. get array of possible matches for opponent
       // 2. determine if possible matches could be next in drop
       // 2. sort verified matches by count in a row
-      // 3. add checker in next drop x
+      // 3. add checker in next drop x 
       return aiMoveRandom();
     }
 
@@ -204,23 +193,15 @@ function Connect4() {
   }
 
   function toggleTurn() {
-    app.board.classList.remove(
-      'turn-' + Players.player1,
-      'turn-' + Players.player2
-    );
     const currentPlayer =
       state.currentPlayer === Players.player1
         ? Players.player2
         : Players.player1;
     updateState({ currentPlayer });
-    app.board.classList.add('turn-' + state.currentPlayer);
-    app.turnColor.forEach(el => {
-      el.innerText =
-        state.currentPlayer[0].toUpperCase() + state.currentPlayer.substr(1);
-    });
-    if (state.aiPlayers.includes(currentPlayer)) {
-      return aiMove();
-    }
+    const currentPlayerName =
+      currentPlayer[0].toUpperCase() + currentPlayer.substr(1);
+    app.board.className = 'turn-' + currentPlayer;
+    app.turnColor.forEach(el => (el.innerText = currentPlayerName));
     return Promise.resolve();
   }
 }

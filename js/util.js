@@ -79,10 +79,29 @@ const Utilities = (() => {
       }
     };
   }
+  function getSets(x, y) {
+    const rangeTypes = getRanges(x, y);
+    return [
+      rangeTypes.DiagonalBottomLeftToTopRight(),
+      rangeTypes.DiagonalTopLeftToBottomRight(),
+      rangeTypes.HorizontalLeftToRight(),
+      rangeTypes.VerticalBottomToTop()
+    ]
+      .filter(points => points.length >= 4)
+      .reduce((sets, range) => {
+        if (range.length > 4) {
+          sets.push(range.slice(0,4));
+          sets.push(range.reverse().slice(0,4));
+        } else {
+          sets.push(range);
+        }
+        return sets;
+      }, []);
+  }
   function wait(time, willReject = false) {
     return new Promise((resolve, reject) =>
       setTimeout(() => (willReject ? reject() : resolve()), time)
     );
   }
-  return { getRanges, wait };
+  return { getSets, getRanges, wait };
 })();

@@ -5,6 +5,8 @@ const fs = require('fs');
 var code = fs.readFileSync('./js/util.js');
 vm.runInThisContext(code);
 
+const { getSets, getRanges } = Utilities;
+
 const rangeTest = (name, set, expectedLength, expectedStart, expectedEnd) => {
   describe(name, function() {
     it('Start', function() {
@@ -18,8 +20,35 @@ const rangeTest = (name, set, expectedLength, expectedStart, expectedEnd) => {
   });
 };
 
-describe('Test Range from (3,3)', function() {
-  const range = Utilities.getRanges(3, 3);
+describe('Test Sets from (2,2)', function() {
+  const sets = getSets(2,2);
+  describe('sets', function() {
+    it('Count', function() {
+      assert.equal(sets.length, 8);
+    });
+  });
+});
+
+describe('Test Sets from (0,0)', function() {
+  const sets = getSets(0,0);
+  describe('sets', function() {
+    it('Count', function() {
+      assert.equal(sets.length, 3);
+    });
+  });
+});
+
+describe('Test Sets from (0,2)', function() {
+  const sets = getSets(0,0);
+  describe('sets', function() {
+    it('Count', function() {
+      assert.equal(sets.length, 3);
+    });
+  });
+});
+
+describe('Test Ranges from (3,3)', function() {
+  const range = getRanges(3, 3);
   rangeTest(
     'DiagonalBottomLeftToTopRight',
     range.DiagonalBottomLeftToTopRight(),
@@ -50,8 +79,8 @@ describe('Test Range from (3,3)', function() {
   );
 });
 
-describe('Test Range from (5,1)', function() {
-  const range = Utilities.getRanges(5, 1);
+describe('Test Ranges from (5,1)', function() {
+  const range = getRanges(5, 1);
   rangeTest(
     'DiagonalBottomLeftToTopRight',
     range.DiagonalBottomLeftToTopRight(),
@@ -82,8 +111,8 @@ describe('Test Range from (5,1)', function() {
   );
 });
 
-describe('Test Range from (0,5)', function() {
-  const range = Utilities.getRanges(0, 5);
+describe('Test Ranges from (0,5)', function() {
+  const range = getRanges(0, 5);
   rangeTest(
     'DiagonalBottomLeftToTopRight',
     range.DiagonalBottomLeftToTopRight(),

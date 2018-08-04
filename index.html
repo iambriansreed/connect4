@@ -15,9 +15,7 @@
 </head>
 
 <body>
-
     <h1></h1>
-
     <div id="game-start" style="display: block;">
         <div class="modal">
             <h1>Welcome!</h1>
@@ -26,7 +24,9 @@
             <p>
                 <button type="button" id="start-btn">Start</button>
             </p>
-            <p><small>v0.1</small></p>
+            <p>
+                <small>v0.1</small>
+            </p>
         </div>
     </div>
     <div id="board" class="turn-player1">
@@ -108,7 +108,6 @@
             <div class="space" id="pos-7-0"></div>
         </div>
     </div>
-
     <form name="settings">
         <span class="title">AI Type: </span>
         <label>
@@ -121,22 +120,19 @@
             <input type="radio" name="ai" value="offensive">Offensive
         </label>
     </form>
-
     <div id="game-over">
         <div class="modal">
             <h1>
-                <span class="turn-color"></span> Wins!</h1>
+                <span class="turn-color"></span> Wins!
+            </h1>
             <p>
                 <button type="button" id="reset-btn">Reset</button>
             </p>
         </div>
     </div>
-
     <script src="js/util.js"></script>
     <script src="js/Connect4.js"></script>
-    <script>
-        new Connect4();
-    </script>
+    <script>new Connect4();</script>
 </body>
 
 </html>

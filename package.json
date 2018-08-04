@@ -4,7 +4,7 @@
   "description": "A Connect Four game.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha src/tests",
     "build": "node-sass src/style.scss css/style.css  --source-map css -w",
     "start": "http-server -o"
   },
@@ -12,6 +12,9 @@
   "license": "ISC",
   "dependencies": {},
   "devDependencies": {
+    "http-server": "^0.11.1",
+    "mocha": "^5.2.0",
+    "node-sass": "^4.9.2"
   },
   "repository": {
     "type": "git",
