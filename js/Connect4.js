@@ -143,36 +143,84 @@ function Connect4() {
   function aiMove() {
     const lastPos = state.history[state.history.length - 1];
 
+    const sortFilterSets = (matchSets, player) =>
+      matchSets
+        .map(set => ({
+          matches: set.filter(pos => getPlayer(...pos) === player).length,
+          moves: set.filter(pos => getAvailableY(pos[0]) === pos[1])
+        }))
+        .filter(moveSets => moveSets.moves.length > 0)
+        .sort((a, b) => {
+          if (a.matches === b.matches) {
+            if (a.moves > b.moves) return -1;
+            if (a.moves < b.moves) return 1;
+            return 0;
+          }
+          if (a.matches > b.matches) return -1;
+          if (a.matches < b.matches) return 1;
+          return 0;
+        });
+
     const possibleMatchSets = state.history.length
       ? getPossibleMatchSets(lastPos.x, lastPos.y)
       : [];
+      
+    let x = null;
 
-    const defensiveMovesSets = possibleMatchSets
-      .map(set => ({
-        matches: set.filter(pos => getPlayer(...pos) === lastPos.player).length,
-        moves: set.filter(pos => getAvailableY(pos[0]) === pos[1])
-      }))
-      .filter(moveSets => moveSets.moves.length > 0)
-      .sort((a, b) => {
-        if (a.matches === b.matches) {
-          if (a.moves > b.moves) return -1;
-          if (a.moves < b.moves) return 1;
-          return 0;
-        }
-        if (a.matches > b.matches) return -1;
-        if (a.matches < b.matches) return 1;
-        return 0;
-      });
+    const offensiveMovesSets = sortFilterSets(
+      possibleMatchSets,
+      state.currentPlayer
+    );
+    // TODO: check for easy 3 matches and
 
-    // TODO: log 3x matches and check in later defense moves
+    // looks for any oponent matches and makes blocking move recomendations
+    const defensiveMovesSets = sortFilterSets(
+      possibleMatchSets,
+      lastPos.player
+    );
 
-    // TODO: check for offensive moves
-
-    let x = -1;
     if (defensiveMovesSets.length) {
       // defensive
-      x = defensiveMovesSets[0].moves[0][0];
-    } else {
+
+      defensiveMovesSets.some(defensiveMovesSet => {
+        let defensiveMove = defensiveMovesSet.moves[0];
+
+        // check if defensiveMove has a follow up win
+
+        // check if next y exists if it doesn't don't wory about it
+        if (defensiveMove[1] === 7) {
+          x = defensiveMove[0];
+          return true;
+        }
+
+        // check if the next y move has 3 in a row
+        const predictiveMove = [defensiveMove[0], defensiveMove[1] + 1];
+        const predictiveMatchSets = getPossibleMatchSets(
+          predictiveMove[0],
+          predictiveMove[1]
+        )
+          .map(set => ({
+            matches: set.filter(pos => getPlayer(...pos) === lastPos.player)
+              .length
+          }))
+          .sort((a, b) => {
+            if (a.matches > b.matches) return -1;
+            if (a.matches < b.matches) return 1;
+            return 0;
+          });
+
+        if (
+          predictiveMatchSets.every(
+            predictiveMatchSet => predictiveMatchSet.matches < 3
+          )
+        ) {
+          x = defensiveMove[0];
+          return true;
+        }
+      });
+    }
+
+    if (!x) {
       x = getRandomMinMax(0, 7);
       while (getAvailableY(x) === -1) {
         if (++x > 7) x = 0;
