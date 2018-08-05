@@ -1,4 +1,15 @@
 const Utilities = (() => {
+  function getRandomMinMax(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+  }
+  function showElements(...elements) {
+    elements.forEach(el => (el.style.display = 'inherit'));
+  }
+  function hideElements(...elements) {
+    elements.forEach(el => (el.style.display = 'none'));
+  }
   function getRanges(x, y) {
     return {
       VerticalBottomToTop: () => {
@@ -79,7 +90,7 @@ const Utilities = (() => {
       }
     };
   }
-  function getSets(x, y) {
+  function getPossibleMatchSets(x, y) {
     const rangeTypes = getRanges(x, y);
     return [
       rangeTypes.DiagonalBottomLeftToTopRight(),
@@ -90,8 +101,13 @@ const Utilities = (() => {
       .filter(points => points.length >= 4)
       .reduce((sets, range) => {
         if (range.length > 4) {
-          sets.push(range.slice(0,4));
-          sets.push(range.reverse().slice(0,4));
+          sets.push(range.slice(0, 4));
+          sets.push(
+            range
+              .reverse()
+              .slice(0, 4)
+              .reverse()
+          );
         } else {
           sets.push(range);
         }
@@ -103,5 +119,12 @@ const Utilities = (() => {
       setTimeout(() => (willReject ? reject() : resolve()), time)
     );
   }
-  return { getSets, getRanges, wait };
+  return {
+    getRandomMinMax,
+    showElements,
+    hideElements,
+    getPossibleMatchSets,
+    getRanges,
+    wait
+  };
 })();

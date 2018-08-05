@@ -3,27 +3,25 @@ const Players = {
   player2: 'player2'
 };
 
-const AiTypes = {
-  random: 'random',
-  defensive: 'defensive',
-  offensive: 'offensive'
-};
-
 const config = {
   checkerSize: 60,
   dropSpeed: 300,
   defaultState: {
     currentPlayer: Players.player1,
     aiPlayers: [Players.player2],
-    places: []
-  },
-  aiType: AiTypes.defensive
+    history: []
+  }
 };
 Object.freeze(Players);
-Object.freeze(AiTypes);
 Object.freeze(config);
 
-const { wait, getSets } = Utilities;
+const {
+  getRandomMinMax,
+  showElements,
+  hideElements,
+  getPossibleMatchSets,
+  wait
+} = Utilities;
 
 function Connect4() {
   const app = initialize();
@@ -31,75 +29,33 @@ function Connect4() {
   const state = { ...config.defaultState };
 
   function initialize() {
-    document.settings.ai.value = config.aiType;
     const getElements = selector =>
       Array.from(document.querySelectorAll(selector));
     const getElement = selector => getElements(selector)[0];
     const app = {
       board: getElement('#board'),
-      buttonBlock: getElement('#board .buttons .blocker'),
+      blocker: getElement('#board .blocker'),
       gameOver: getElement('#game-over'),
+      gameTie: getElement('#game-tie'),
       gameStart: getElement('#game-start'),
-      reset: getElement('#reset-btn'),
-      start: getElement('#start-btn'),
+      resetBtns: getElements('.reset-btn'),
+      startBtn: getElement('#start-btn'),
       buttons: getElements('#board .buttons button'),
+      columns: getElements('#board .columns button'),
       spacesWrapper: getElements('#board .spaces'),
       turnColor: getElements('.turn-color')
     };
-    app.start.onclick = () => hideElements(app.gameStart);
-    app.reset.onclick = () => reset();
+
+    app.startBtn.onclick = start;
+    app.resetBtns.forEach(button => (button.onclick = reset));
     app.buttons.forEach((button, x) => (button.onclick = () => dropChecker(x)));
     Object.freeze(app);
     return app;
   }
 
-  function getPlayer(x, y) {
-    return (state.places.find(p => p.x === x && p.y === y) || {}).player;
-  }
-
-  function addPlace(x, y, player) {
-    updateState({
-      places: [...state.places, { x, y, player }],
-      lastPosition: { x, y }
-    });
-  }
-
-  function updateState(update) {
-    return Object.assign(state, update);
-  }
-
-  function showElements(...elements) {
-    elements.forEach(el => (el.style.display = 'inherit'));
-  }
-
-  function hideElements(...elements) {
-    elements.forEach(el => (el.style.display = 'none'));
-  }
-
-  function checkForWin(x, y) {
-    const sets = getSets(x, y);
-    return sets.some(set =>
-      set.every(pos => getPlayer(...pos) === state.currentPlayer)
-    );
-  }
-
-  function dropChecker(x) {
-    showElements(app.buttonBlock);
-    const y = getAvailableY(x);
-    if (y < 0) return;
-    return animateChecker(x, y).then(() => {
-      addPlace(x, y, state.currentPlayer);
-      hideElements(app.buttonBlock);
-      const winningSet = checkForWin(x, y);
-      if (winningSet) {
-        return wait(250).then(() => showElements(app.gameOver));
-      }
-      toggleTurn();
-      if (state.aiPlayers.includes(state.currentPlayer)) {
-        return aiMove();
-      }
-      return Promise.resolve();
-    });
+  function start() {
+    hideElements(app.gameStart);
+    app.board.className = 'turn-' + state.currentPlayer;
   }
 
   function reset() {
@@ -109,7 +65,55 @@ function Connect4() {
     );
     wait(1000).then(() => oldCheckers.forEach(c => c.remove()));
     updateState(config.defaultState);
+    app.board.className = 'turn-' + state.currentPlayer;
     hideElements(app.gameOver);
+    hideElements(app.gameTie);
+  }
+
+  function getPlayer(x, y) {
+    return (state.history.find(p => p.x === x && p.y === y) || {}).player;
+  }
+
+  function setChecker(x, y, player) {
+    updateState({
+      history: [...state.history, { x, y, player }]
+    });
+  }
+
+  function updateState(update) {
+    return Object.assign(state, update);
+  }
+
+  function checkForWin(x, y) {
+    const sets = getPossibleMatchSets(x, y);
+    return sets.some(set =>
+      set.every(pos => getPlayer(...pos) === state.currentPlayer)
+    );
+  }
+
+  function checkForTie() {
+    return state.history.length === 64;
+  }
+
+  function dropChecker(x) {
+    showElements(app.blocker);
+    const y = getAvailableY(x);
+    if (y < 0) return;
+    return animateChecker(x, y).then(() => {
+      setChecker(x, y, state.currentPlayer);
+      hideElements(app.blocker);
+      if (checkForWin(x, y)) {
+        return wait(250).then(() => showElements(app.gameOver));
+      }
+      if (checkForTie()) {
+        return wait(250).then(() => showElements(app.gameTie));
+      }
+      toggleTurn();
+      if (state.aiPlayers.includes(state.currentPlayer)) {
+        return aiMove();
+      }
+      return Promise.resolve();
+    });
   }
 
   function animateChecker(x, y) {
@@ -137,59 +141,45 @@ function Connect4() {
   }
 
   function aiMove() {
-    const ai = getAiType();
+    const lastPos = state.history[state.history.length - 1];
+
+    const possibleMatchSets = state.history.length
+      ? getPossibleMatchSets(lastPos.x, lastPos.y)
+      : [];
+
+    const defensiveMovesSets = possibleMatchSets
+      .map(set => ({
+        matches: set.filter(pos => getPlayer(...pos) === lastPos.player).length,
+        moves: set.filter(pos => getAvailableY(pos[0]) === pos[1])
+      }))
+      .filter(moveSets => moveSets.moves.length > 0)
+      .sort((a, b) => {
+        if (a.matches === b.matches) {
+          if (a.moves > b.moves) return -1;
+          if (a.moves < b.moves) return 1;
+          return 0;
+        }
+        if (a.matches > b.matches) return -1;
+        if (a.matches < b.matches) return 1;
+        return 0;
+      });
+
+    // TODO: log 3x matches and check in later defense moves
+
+    // TODO: check for offensive moves
+
     let x = -1;
-
-    function aiMoveDefensive() {
-      // TODO: write the logic for this
-      // 1. get array of possible matches for opponent
-      // 2. determine if possible matches could be next in drop
-      // 2. sort verified matches by count in a row
-      // 3. add checker in next drop x 
-      return aiMoveRandom();
+    if (defensiveMovesSets.length) {
+      // defensive
+      x = defensiveMovesSets[0].moves[0][0];
+    } else {
+      x = getRandomMinMax(0, 7);
+      while (getAvailableY(x) === -1) {
+        if (++x > 7) x = 0;
+      }
     }
 
-    function aiMoveOffensive() {
-      // TODO: write the logic for this
-      // 1. get array of possible matches for myself
-      // 2. determine if possible matches could be next in drop
-      // 2. sort verified matches by count in a row
-      // 3. add checker in next drop x
-      return aiMoveRandom();
-    }
-
-    function aiMoveRandom() {
-      const x = getRandomMinMax(0, 7);
-      // TODO: fix very possible infinite loop issue
-      return isValidMove(x) ? x : aiMoveRandom();
-    }
-
-    function isValidMove(x) {
-      return getAvailableY(x) > -1;
-    }
-
-    if (ai === AiTypes.random) {
-      x = aiMoveRandom();
-    }
-    if (ai === AiTypes.defensive) {
-      x = aiMoveDefensive();
-    }
-    if (ai === AiTypes.offensive) {
-      x = aiMoveOffensive();
-    }
-
-    console.log('AI just made a ' + ai + ' move.');
     return dropChecker(x);
-  }
-
-  function getAiType() {
-    return document.settings.ai.value;
-  }
-
-  function getRandomMinMax(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
   }
 
   function toggleTurn() {

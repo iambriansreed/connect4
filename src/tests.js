@@ -5,7 +5,7 @@ const fs = require('fs');
 var code = fs.readFileSync('./js/util.js');
 vm.runInThisContext(code);
 
-const { getSets, getRanges } = Utilities;
+const { getPossibleMatchSets, getRanges } = Utilities;
 
 const rangeTest = (name, set, expectedLength, expectedStart, expectedEnd) => {
   describe(name, function() {
@@ -21,7 +21,7 @@ const rangeTest = (name, set, expectedLength, expectedStart, expectedEnd) => {
 };
 
 describe('Test Sets from (2,2)', function() {
-  const sets = getSets(2,2);
+  const sets = getPossibleMatchSets(2,2);
   describe('sets', function() {
     it('Count', function() {
       assert.equal(sets.length, 8);
@@ -30,7 +30,7 @@ describe('Test Sets from (2,2)', function() {
 });
 
 describe('Test Sets from (0,0)', function() {
-  const sets = getSets(0,0);
+  const sets = getPossibleMatchSets(0,0);
   describe('sets', function() {
     it('Count', function() {
       assert.equal(sets.length, 3);
@@ -39,7 +39,7 @@ describe('Test Sets from (0,0)', function() {
 });
 
 describe('Test Sets from (0,2)', function() {
-  const sets = getSets(0,0);
+  const sets = getPossibleMatchSets(0,0);
   describe('sets', function() {
     it('Count', function() {
       assert.equal(sets.length, 3);

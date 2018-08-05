@@ -105,19 +105,20 @@ body {
     background: #eeee03; }
   #board.turn-player2 .checker {
     background: #eeee03; }
+  #board .blocker {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 2; }
   #board .buttons {
     position: relative;
     z-index: 2;
     border: solid 10px transparent;
     overflow: hidden;
     width: 500px; }
-    #board .buttons .blocker {
-      display: none;
-      position: absolute;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      right: 0; }
     #board .buttons button {
       outline: none !important;
       width: 50px;
@@ -161,19 +162,7 @@ body {
     #board .checker.player2 {
       background: #eeee03; }
 
-form[name='settings'] {
-  text-align: center;
-  display: block;
-  width: 100%; }
-  form[name='settings'] .title {
-    font-weight: bold; }
-  form[name='settings'] label {
-    display: inline-block;
-    padding: 10px 10px; }
-    form[name='settings'] label input[type='radio'] {
-      vertical-align: text-bottom;
-      margin-right: 7px; }
-
+#game-tie,
 #game-over,
 #game-start {
   display: none;
@@ -184,6 +173,7 @@ form[name='settings'] {
   height: 100%;
   z-index: 100;
   background-color: rgba(0, 0, 0, 0.75); }
+  #game-tie .modal,
   #game-over .modal,
   #game-start .modal {
     background: #fff;
@@ -195,21 +185,23 @@ form[name='settings'] {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.75);
     padding: 20px;
     border-radius: 5px; }
+    #game-tie .modal p,
     #game-over .modal p,
     #game-start .modal p {
       margin-bottom: 20px; }
+    #game-tie .modal h1,
     #game-over .modal h1,
     #game-start .modal h1 {
       font-size: 50px;
       margin-bottom: 20px; }
-    #game-over .modal button,
-    #game-start .modal button {
-      background: #eee;
-      border-color: #aaa;
-      border-radius: 5px;
-      padding: 5px;
-      font: inherit;
-      cursor: pointer;
-      font-size: 110%; }
+
+.btn {
+  background: #eee;
+  border-color: #aaa;
+  border-radius: 5px;
+  padding: 5px;
+  font: inherit;
+  cursor: pointer;
+  font-size: 110%; }
 
 /*# sourceMappingURL=style.css.map */

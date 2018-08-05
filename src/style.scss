@@ -32,20 +32,21 @@ $size: 60px;
       background: $player2color;
     }
   }
+  .blocker {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 2;
+  }
   .buttons {
     position: relative;
     z-index: 2;
     border: solid 10px transparent;
     overflow: hidden;
     width: ($size * 8) + 20px;
-    .blocker {
-      display: none;
-      position: absolute;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      right: 0;
-    }
     button {
       outline: none !important;
       width: $size - 10px;
@@ -111,23 +112,7 @@ $size: 60px;
   }
 }
 
-form[name='settings'] {
-  text-align: center;
-  display: block;
-  width: 100%;
-  .title {
-    font-weight: bold;
-  }
-  label {
-    display: inline-block;
-    padding: 10px 10px;
-    input[type='radio'] {
-      vertical-align: text-bottom;
-      margin-right: 7px;
-    }
-  }
-}
-
+#game-tie,
 #game-over,
 #game-start {
   display: none;
@@ -155,14 +140,14 @@ form[name='settings'] {
       font-size: 50px;
       margin-bottom: 20px;
     }
-    button {
-      background: #eee;
-      border-color: #aaa;
-      border-radius: 5px;
-      padding: 5px;
-      font: inherit;
-      cursor: pointer;
-      font-size: 110%;
-    }
   }
+}
+.btn {
+  background: #eee;
+  border-color: #aaa;
+  border-radius: 5px;
+  padding: 5px;
+  font: inherit;
+  cursor: pointer;
+  font-size: 110%;
 }
