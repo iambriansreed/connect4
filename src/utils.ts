@@ -5,11 +5,11 @@ export function getRandomMinMax(min, max) {
 }
 
 export function showElements(...elements) {
-    elements.forEach((el) => (el.style.display = 'inherit'));
+    elements.forEach((el) => (el.style.display = "inherit"));
 }
 
 export function hideElements(...elements) {
-    elements.forEach((el) => (el.style.display = 'none'));
+    elements.forEach((el) => (el.style.display = "none"));
 }
 
 export function getRanges(x, y) {
@@ -114,11 +114,15 @@ export function getPossibleMatchSets(x, y): [number, number][][] {
 }
 
 export function wait(time, willReject = false): Promise<void> {
-    return new Promise((resolve, reject) =>
-        setTimeout(() => (willReject ? reject() : resolve()), time)
-    );
+    return new Promise((resolve, reject) => setTimeout(() => (willReject ? reject() : resolve()), time));
 }
 
 export function listToArray(list: NodeList | HTMLCollectionOf<Element>) {
     return Array.prototype.slice.call(list) as HTMLElement[];
+}
+
+export function getRandom(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min) + min);
 }

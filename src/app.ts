@@ -1,4 +1,4 @@
-import { getPossibleMatchSets, getRandomMinMax, getRanges, hideElements, showElements, wait } from "./utils";
+import { getPossibleMatchSets, getRandom, getRandomMinMax, getRanges, hideElements, showElements, wait } from "./utils";
 import "./style.scss";
 
 const Players = {
@@ -130,6 +130,8 @@ function Connect4() {
         app.board.appendChild(clone);
 
         const o = app.board.lastChild as HTMLDivElement;
+
+        o.style.transform = "rotate(" + getRandom(1, 360) + "deg)";
 
         o.classList.add(state.currentPlayer);
 

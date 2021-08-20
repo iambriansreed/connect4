@@ -5,18 +5,19 @@ body {
     text-align: center;
 }
 
-$player1color: red;
-$player2color: rgb(238, 238, 3);
+$player1color: rgba(203, 44, 43, 1);
+$player2color: rgba(236, 216, 86, 1);
+$boardColor: rgb(43, 85, 184);
 $size: 9vmin;
 
 $gradientCircle: radial-gradient(
     ellipse at center,
-    rgba(0, 0, 255, 0) 1%,
-    rgba(0, 0, 255, 0) 51%,
-    rgba(0, 0, 255, 0.3) 52%,
-    rgba(0, 0, 255, 0.5) 54%,
-    rgba(0, 0, 255, 1) 55%,
-    rgba(0, 0, 255, 1) 100%
+    rgba($boardColor, 0) 1%,
+    rgba($boardColor, 0) 51%,
+    rgba($boardColor, 0.3) 52%,
+    rgba($boardColor, 0.5) 54%,
+    rgba($boardColor, 1) 55%,
+    rgba($boardColor, 1) 100%
 );
 @mixin space-bg($checker) {
     background: $gradientCircle, $checker;
@@ -45,14 +46,14 @@ $gradientCircle: radial-gradient(
         .left,
         .right {
             position: absolute;
-            background: blue;
+            background: $boardColor;
             width: $wrap + 0.1vmin;
             height: 9vmin * 8;
         }
 
         .bottom {
             position: absolute;
-            background: blue;
+            background: $boardColor;
             bottom: -($wrap);
             left: -$wrap;
             height: $wrap + 0.2vmin;
@@ -116,23 +117,23 @@ $gradientCircle: radial-gradient(
             width: $size - 1.8vmin;
             height: $size - 1.8vmin;
             border-radius: $size;
-            box-shadow: inset 0 0 10px #000;
-
+            box-shadow: inset 0 0 2vmin rgba(black, 0.5);
             font-weight: bold;
             line-height: 7vmin;
             font-size: 5vmin;
-            text-shadow: rgb(0 0 0 / 5%) 1px 0 3px;
         }
         &.player1 {
             div {
                 background: $player1color;
-                color: lighten($player1color, 8%);
+                color: lighten($player1color, 4%);
+                text-shadow: rgba(black, 0.025) 0.1vmin 0 0.5vmin;
             }
         }
         &.player2 {
             div {
                 background: $player2color;
-                color: lighten($player2color, 1%);
+                color: lighten($player2color, 0.5%);
+                text-shadow: rgba(black, 0.0625) 0.1vmin 0 0.5vmin;
             }
         }
     }
@@ -170,7 +171,7 @@ $gradientCircle: radial-gradient(
     // .spaces {
     //     position: relative;
     //     z-index: 2;
-    //     border: solid 10px blue;
+    //     border: solid 10px $boardColor;
     //     overflow: hidden;
     //     width: ($size * 8) + 20px;
     //     height: ($size * 8) + 20px;

@@ -6,7 +6,7 @@
     "scripts": {
         "test": "mocha src/tests",
         "build:scss": "sass src/style.scss css/style.css -w",
-        "start": "http-server -o",
+        "start": "http-server -o -S -C cert.pem",
         "build": "webpack -w"
     },
     "author": "iambriansreed",
@@ -14,6 +14,7 @@
     "devDependencies": {
         "css-loader": "^6.2.0",
         "http-server": "^13.0.0",
+        "mini-css-extract-plugin": "^2.2.0",
         "mocha": "^9.0.3",
         "sass": "^1.38.0",
         "sass-loader": "^12.1.0",
