@@ -4,35 +4,35 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 module.exports = {
     plugins: [
         new MiniCssExtractPlugin({
-            filename: "./css/style.css",
+            filename: "./style.css",
         }),
     ],
     entry: "./src/app.ts",
     output: {
-        filename: "./js/app.js",
-        path: path.resolve(__dirname, "./"),
+        filename: "./app.js",
+        path: path.resolve(__dirname, "./docs"),
     },
-    mode: "development",
+    mode: "production",
     devtool: "source-map",
     resolve: {
-        // Add '.ts' and '.tsx' as resolvable extensions.
-        extensions: ["", ".webpack.js", ".web.js", ".ts", ".tsx", ".js"],
+        extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js"],
+    },
+    devServer: {
+        static: {
+            directory: path.join(__dirname, "docs"),
+            watch: true,
+        },
+        port: 9000,
+        open: true,
+        https: true,
     },
     module: {
         rules: [
-            // All files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'.
             { test: /\.tsx?$/, loader: "ts-loader" },
-            // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
             { test: /\.js$/, loader: "source-map-loader" },
             {
                 test: /\.scss$/i,
-                use: [
-                    MiniCssExtractPlugin.loader,
-                    // Translates CSS into CommonJS
-                    "css-loader",
-                    // Compiles Sass to CSS
-                    "sass-loader",
-                ],
+                use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
             },
         ],
     },

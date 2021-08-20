@@ -3,6 +3,7 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif,
         "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     text-align: center;
+    font-size: 22px;
 }
 
 $player1color: rgba(203, 44, 43, 1);
@@ -94,7 +95,7 @@ $gradientCircle: radial-gradient(
                 cursor: pointer;
                 padding: 0;
                 border-radius: $size;
-                background: #eee;
+                background: transparent;
                 display: block;
                 width: 70%;
                 height: 70%;
@@ -201,11 +202,12 @@ $gradientCircle: radial-gradient(
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.75);
         padding: 3vmin 5vmin;
         border-radius: 2vmin;
-        p {
-            margin-bottom: 2vmin;
-        }
         h1 {
             font-size: 3rem;
+            margin-top: 1vmin;
+            margin-bottom: 2vmin;
+        }
+        p {
             margin-bottom: 2vmin;
         }
     }
@@ -215,9 +217,9 @@ $gradientCircle: radial-gradient(
     background: #eee;
     border: solid 1px #aaa;
     border-radius: 2vmin;
-    padding: 1.125vmin 1.25vmin;
+    padding: 1.125vmin 1.5vmin;
     font: inherit;
     cursor: pointer;
-    font-size: 110%;
+    font-size: 1.3rem;
     font-weight: 500;
 }
