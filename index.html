@@ -1,139 +1,136 @@
 <!doctype html>
-
 <html lang="en">
 
-<head>
-    <meta charset="utf-8">
+    <head>
+        <meta charset="utf-8">
+        <title>Connect 4</title>
+        <meta name="description" content="Connect 4 - AI">
+        <meta name="author" content="iambriansreed">
+        <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    </head>
 
-    <title>Connect 4</title>
-    <meta name="description" content="Connect 4 - AI">
-    <meta name="author" content="iambriansreed">
-    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
-
-    <link rel="stylesheet" href="css/style.css?v=0.1">
-</head>
-
-<body>
-    <h1></h1>
-    <div id="game-start" style="display: block;">
-        <div class="modal">
-            <h1>Welcome!</h1>
-            <p>You are red.</p>
-            <p>Computer is yellow.</p>
-            <p>
-                <button type="button" class="btn" id="start-btn">Start</button>
-            </p>
-            <p>
-                <small>v0.2</small>
-            </p>
+    <body>
+        <div id="template">
+            <div class="checker" style="display: none;">
+                <div>B</div>
+            </div>
         </div>
-    </div>
-    <div id="board">
-        <div class="buttons">
-            <button type="button"></button>
-            <button type="button"></button>
-            <button type="button"></button>
-            <button type="button"></button>
-            <button type="button"></button>
-            <button type="button"></button>
-            <button type="button"></button>
-            <button type="button"></button>
+        <div id="game-start" style="display: block;">
+            <div class="modal">
+                <h1>Welcome!</h1>
+                <p>You are red.</p>
+                <p>Computer is yellow.</p>
+                <p>
+                    <button type="button" class="btn" id="start-btn">Start</button>
+                </p>
+                <p>
+                    <small>v0.2</small>
+                </p>
+            </div>
         </div>
-        <div class="spaces">
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
-            <div class="space"></div>
+        <div id="board">
+            <div class="grid button"><button type="button"></button></div>
+            <div class="grid button"><button type="button"></button></div>
+            <div class="grid button"><button type="button"></button></div>
+            <div class="grid button"><button type="button"></button></div>
+            <div class="grid button"><button type="button"></button></div>
+            <div class="grid button"><button type="button"></button></div>
+            <div class="grid button"><button type="button"></button></div>
+            <div class="grid button"><button type="button"></button></div>
+            <div class="wrap">
+                <div class="left"></div>
+                <div class="right"></div>
+                <div class="bottom"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+                <div class="grid space"></div>
+            </div>
+            <div class="blocker"></div>
         </div>
-        <div class="blocker"></div>
-    </div>
-    <p style="text-align: center">
-        <button type="button" class="btn reset-btn">Reset</button>
-    </p>
-    <div id="game-over">
-        <div class="modal">
-            <h1>
-                <span class="turn-color"></span> Wins!
-            </h1>
-            <p>
-                <button type="button" class="btn reset-btn">Reset</button>
-            </p>
+        <p style="text-align: center">
+            <button type="button" class="btn reset-btn">Reset</button>
+        </p>
+        <div id="game-over">
+            <div class="modal">
+                <h1>
+                    <span class="turn-color"></span> Wins!
+                </h1>
+                <p>
+                    <button type="button" class="btn reset-btn">Reset</button>
+                </p>
+            </div>
         </div>
-    </div>
-    <div id="game-tie">
-        <div class="modal">
-            <h1>
-                Tie Game!
-            </h1>
-            <p>That was impressive!</p>
-            <p>
-                <button type="button" class="btn reset-btn">Reset</button>
-            </p>
+        <div id="game-tie">
+            <div class="modal">
+                <h1> Tie Game! </h1>
+                <p>That was impressive!</p>
+                <p>
+                    <button type="button" class="btn reset-btn">Reset</button>
+                </p>
+            </div>
         </div>
-    </div>
-    <script src="js/util.js"></script>
-    <script src="js/Connect4.js"></script>
-    <script>new Connect4();</script>
-</body>
+        <script src="js/app.js"></script>
+    </body>
 
 </html>
