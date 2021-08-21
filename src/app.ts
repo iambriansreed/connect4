@@ -1,17 +1,19 @@
-import { getPossibleMatchSets, getRandom, getRandomMinMax, getRanges, hideElements, showElements, wait } from "./utils";
-import "./style.scss";
+import { getPossibleMatchSets, getRandom, getRandomMinMax, getRanges, hideElements, showElements, wait } from './utils';
+import './style.scss';
 
 const Players = {
-    player1: "player1",
-    player2: "player2",
+    player1: 'player1',
+    player2: 'player2',
 };
 
 const config = {
-    dropSpeed: 300,
+    dropSpeed: 400,
     defaultState: {
         currentPlayer: Players.player1,
         aiPlayers: [Players.player2],
         history: [],
+        checkers: [] as HTMLDivElement[],
+        active: false,
     },
 };
 
@@ -24,35 +26,22 @@ function Connect4() {
     const state = { ...config.defaultState };
 
     function initialize() {
-        const getElements = (selector) => Array.from(document.querySelectorAll(selector)) as HTMLElement[];
-        const getElement = (selector) => getElements(selector)[0];
+        const getElements = (selector: string) => Array.from(document.querySelectorAll(selector)) as HTMLElement[];
+        const getElement = (selector: string) => getElements(selector)[0];
         const app = {
-            board: getElement("#board"),
-            blocker: getElement("#board .blocker"),
-            gameOver: getElement("#game-over"),
-            gameTie: getElement("#game-tie"),
-            gameStart: getElement("#game-start"),
-            resetBtns: getElements(".reset-btn"),
-            startBtn: getElement("#start-btn"),
-            buttons: getElements("#board button"),
-            spacesWrapper: getElements("#board .spaces"),
-            turnColor: getElements(".turn-color"),
-            checkerTemplate: getElement("#template .checker"),
+            board: getElement('#board'),
+            blocker: getElement('#board .blocker'),
+            gameOver: getElement('#game-over'),
+            gameTie: getElement('#game-tie'),
+            gameStart: getElement('#game-start'),
+            resetBtns: getElements('.reset-btn'),
+            startBtn: getElement('#start-btn'),
+            buttons: getElements('#board button'),
+            spacesWrapper: getElements('#board .spaces'),
+            turnColor: getElements('.turn-color'),
+            checkerTemplate: getElement('#template .checker'),
+            checkers: [] as HTMLDivElement[],
         };
-
-        // const resizeBoard = () => {
-        //     let h = app.board.offsetHeight;
-        //     let w = app.board.offsetWidth;
-        //     const smallestSize = Math.min(h, w);
-        //     const grid = (smallestSize - (smallestSize % 9)) / 9;
-        //     h = grid * 9;
-        //     w = grid * 8;
-
-        //     app.board.style.width = `${w}px`;
-        //     app.board.style.height = `${h}px`;
-        // };
-
-        // resizeBoard();
 
         app.startBtn.onclick = start;
         app.resetBtns.forEach((button) => (button.onclick = reset));
@@ -61,46 +50,62 @@ function Connect4() {
         return app;
     }
 
+    function isActive(value: boolean) {
+        state.active = value;
+        [...app.resetBtns, ...app.buttons].forEach((btn: HTMLButtonElement) => {
+            btn.disabled = value;
+        });
+    }
+
     function start() {
         hideElements(app.gameStart);
-        app.board.className = "turn-" + state.currentPlayer;
+        app.board.className = 'turn-' + state.currentPlayer;
     }
 
     function reset() {
-        const oldCheckers = Array.from(document.getElementsByClassName("checker")) as HTMLDivElement[];
-        oldCheckers.forEach((c) => (c.style.top = window.outerHeight + window.outerHeight / 2 + "px"));
-        wait(1000).then(() => oldCheckers.forEach((c) => c.remove()));
+        if (state.active) return;
+
+        const ms = config.dropSpeed * 2;
+        state.checkers.forEach((c) => {
+            c.style.transition = `top ${ms}ms linear`;
+            c.style.top = window.outerHeight + window.outerHeight / 2 + 'px';
+        });
+        wait(ms).then(() => state.checkers.forEach((c) => c.remove()));
         updateState(config.defaultState);
-        app.board.className = "turn-" + state.currentPlayer;
+        app.board.className = 'turn-' + state.currentPlayer;
         hideElements(app.gameOver);
         hideElements(app.gameTie);
     }
 
-    function getPlayer(x, y) {
+    function getPlayer(x: number, y: number) {
         return (state.history.find((p) => p.x === x && p.y === y) || {}).player;
     }
 
-    function setChecker(x, y, player) {
+    function setChecker(x: any, y: number, player: string) {
         updateState({
             history: [...state.history, { x, y, player }],
         });
     }
 
-    function updateState(update) {
+    function updateState(update: {
+        currentPlayer?: string;
+        aiPlayers?: string[];
+        history?: any[] | any[];
+        checkers?: HTMLDivElement[];
+    }) {
         return Object.assign(state, update);
     }
 
-    function checkForWin(x, y) {
+    function checkForWin(x: any, y: number) {
         const sets = getPossibleMatchSets(x, y);
         return sets.some((set) => set.every((pos) => getPlayer(...pos) === state.currentPlayer));
-        return false;
     }
 
     function checkForTie() {
         return state.history.length === 64;
     }
 
-    function dropChecker(x) {
+    function dropChecker(x: number) {
         showElements(app.blocker);
         const y = getAvailableY(x);
         if (y < 0) return;
@@ -108,10 +113,14 @@ function Connect4() {
             setChecker(x, y, state.currentPlayer);
             hideElements(app.blocker);
             if (checkForWin(x, y)) {
-                return wait(250).then(() => showElements(app.gameOver));
+                return wait(250).then(() => {
+                    showElements(app.gameOver);
+                });
             }
             if (checkForTie()) {
-                return wait(250).then(() => showElements(app.gameTie));
+                return wait(250).then(() => {
+                    showElements(app.gameTie);
+                });
             }
             toggleTurn();
             if (state.aiPlayers.includes(state.currentPlayer)) {
@@ -121,35 +130,38 @@ function Connect4() {
         });
     }
 
-    function animateChecker(x, y) {
+    async function animateChecker(x: number, y: number) {
+        isActive(true);
+
         y = Math.abs(y - 7) + 1;
-        const ms = (config.dropSpeed / 4) * y;
+        const ms = (config.dropSpeed / 8) * y;
 
         const clone = app.checkerTemplate.cloneNode(true) as HTMLDivElement;
-
         app.board.appendChild(clone);
+        const c = app.board.lastChild as HTMLDivElement;
+        state.checkers.push(c);
 
-        const o = app.board.lastChild as HTMLDivElement;
-
-        o.style.transform = "rotate(" + getRandom(1, 360) + "deg)";
-
-        o.classList.add(state.currentPlayer);
+        c.style.transform = 'rotate(' + getRandom(1, 360) + 'deg)';
+        c.classList.add(state.currentPlayer);
 
         setTimeout(() => {
-            o.style.transition = "";
+            c.style.transition = '';
         }, ms + 100);
 
-        o.style.transition = `top ${ms}ms linear`;
-        o.style.left = x * 9 + "vmin";
-        o.style.display = "";
+        c.style.transition = `top ${ms}ms linear`;
+        c.style.left = x * 9 + 'vmin';
+        c.style.display = '';
 
         return wait(50).then(() => {
-            o.style.top = y * 9 + "vmin";
-            return wait(ms + 300);
+            c.style.top = y * 9 + 'vmin';
+            return wait(ms + 300).then(() => {
+                isActive(false);
+                return true;
+            });
         });
     }
 
-    function getAvailableY(x) {
+    function getAvailableY(x: number) {
         for (let y = 0; y < 8; y++) {
             if (!getPlayer(x, y)) return y;
         }
@@ -159,7 +171,7 @@ function Connect4() {
     function aiMove() {
         const lastPos = state.history[state.history.length - 1];
 
-        const sortFilterSets = (matchSets: [number, number][][], player) =>
+        const sortFilterSets = (matchSets: [number, number][][], player: string) =>
             matchSets
                 .map((set) => ({
                     matches: set.filter((pos) => getPlayer(...pos) === player).length,
@@ -234,7 +246,7 @@ function Connect4() {
         const currentPlayer = state.currentPlayer === Players.player1 ? Players.player2 : Players.player1;
         updateState({ currentPlayer });
         const currentPlayerName = currentPlayer[0].toUpperCase() + currentPlayer.substr(1);
-        app.board.className = "turn-" + currentPlayer;
+        app.board.className = 'turn-' + currentPlayer;
         app.turnColor.forEach((el) => (el.innerText = currentPlayerName));
         return Promise.resolve();
     }

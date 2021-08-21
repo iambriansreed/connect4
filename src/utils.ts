@@ -1,18 +1,18 @@
-export function getRandomMinMax(min, max) {
+export function getRandomMinMax(min: number, max: number) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
 }
 
-export function showElements(...elements) {
-    elements.forEach((el) => (el.style.display = "inherit"));
+export function showElements(...elements: HTMLElement[]) {
+    elements.forEach((el) => (el.style.display = 'inherit'));
 }
 
-export function hideElements(...elements) {
-    elements.forEach((el) => (el.style.display = "none"));
+export function hideElements(...elements: HTMLElement[]) {
+    elements.forEach((el) => (el.style.display = 'none'));
 }
 
-export function getRanges(x, y) {
+export function getRanges(x: number, y: number) {
     return {
         VerticalBottomToTop: () => {
             const range = [];
@@ -93,7 +93,7 @@ export function getRanges(x, y) {
     };
 }
 
-export function getPossibleMatchSets(x, y): [number, number][][] {
+export function getPossibleMatchSets(x: number, y: number): [number, number][][] {
     const rangeTypes = getRanges(x, y);
     return [
         rangeTypes.DiagonalBottomLeftToTopRight(),
@@ -113,7 +113,7 @@ export function getPossibleMatchSets(x, y): [number, number][][] {
         }, []);
 }
 
-export function wait(time, willReject = false): Promise<void> {
+export async function wait(time: number, willReject = false): Promise<void> {
     return new Promise((resolve, reject) => setTimeout(() => (willReject ? reject() : resolve()), time));
 }
 
@@ -121,7 +121,7 @@ export function listToArray(list: NodeList | HTMLCollectionOf<Element>) {
     return Array.prototype.slice.call(list) as HTMLElement[];
 }
 
-export function getRandom(min, max) {
+export function getRandom(min: number, max: number) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min) + min);
