@@ -51,7 +51,7 @@ export function getRanges(x: number, y: number) {
             return range;
         },
         DiagonalBottomLeftToTopRight: (): [number, number][] => {
-            const range = [];
+            const range: [number, number][] = [];
             let testX = x + 0,
                 testY = y + 0,
                 maxRange = 3;
@@ -104,13 +104,13 @@ export function getPossibleMatchSets(x: number, y: number): [number, number][][]
         .filter((points) => points.length >= 4)
         .reduce((sets, range) => {
             if (range.length > 4) {
-                sets.push(range.slice(0, 4));
-                sets.push(range.reverse().slice(0, 4).reverse());
+                sets.push(range.slice(0, 4) as any);
+                sets.push(range.reverse().slice(0, 4).reverse() as any);
             } else {
-                sets.push(range);
+                sets.push(range as any);
             }
             return sets;
-        }, []);
+        }, [] as [number, number][][]);
 }
 
 export async function wait(time: number, willReject = false): Promise<void> {

@@ -1,4 +1,4 @@
-import { getPossibleMatchSets, getRandom, getRandomMinMax, getRanges, hideElements, showElements, wait } from './utils';
+import { getPossibleMatchSets, getRandom, getRandomMinMax, hideElements, showElements, wait } from './utils';
 import './style.scss';
 
 const Players = {
@@ -6,12 +6,17 @@ const Players = {
     player2: 'player2',
 };
 
+const WinMessage = {
+    player1: 'You Win!',
+    player2: 'Computer!',
+};
+
 const config = {
     dropSpeed: 400,
     defaultState: {
         currentPlayer: Players.player1,
         aiPlayers: [Players.player2],
-        history: [],
+        history: [] as { x: number; y: number; player: string }[],
         checkers: [] as HTMLDivElement[],
         active: false,
     },
@@ -20,31 +25,38 @@ const config = {
 Object.freeze(Players);
 Object.freeze(config);
 
+const getElements = <T extends Element = HTMLElement>(selector: string) =>
+    Array.from(document.querySelectorAll<T>(selector));
+
+const getElement = <T extends Element = HTMLElement>(selector: string) =>
+    //
+    getElements<T>(selector)[0];
+
 function Connect4() {
+    document.body.innerHTML = document.querySelector('template')?.innerHTML || '';
+
     const app = initialize();
 
     const state = { ...config.defaultState };
 
     function initialize() {
-        const getElements = (selector: string) => Array.from(document.querySelectorAll(selector)) as HTMLElement[];
-        const getElement = (selector: string) => getElements(selector)[0];
         const app = {
             board: getElement('#board'),
             blocker: getElement('#board .blocker'),
             gameOver: getElement('#game-over'),
             gameTie: getElement('#game-tie'),
             gameStart: getElement('#game-start'),
-            resetBtns: getElements('.reset-btn'),
-            startBtn: getElement('#start-btn'),
-            buttons: getElements('#board button'),
+            resetButtons: getElements<HTMLButtonElement>('.reset-btn'),
+            startButton: getElement<HTMLButtonElement>('#start-btn'),
+            buttons: getElements<HTMLButtonElement>('#board button'),
             spacesWrapper: getElements('#board .spaces'),
-            turnColor: getElements('.turn-color'),
+            winMessage: getElements('.win-message'),
             checkerTemplate: getElement('#template .checker'),
             checkers: [] as HTMLDivElement[],
         };
 
-        app.startBtn.onclick = start;
-        app.resetBtns.forEach((button) => (button.onclick = reset));
+        app.startButton.onclick = start;
+        app.resetButtons.forEach((button) => (button.onclick = reset));
         app.buttons.forEach((button, x) => (button.onclick = () => dropChecker(x)));
         Object.freeze(app);
         return app;
@@ -52,7 +64,7 @@ function Connect4() {
 
     function isActive(value: boolean) {
         state.active = value;
-        [...app.resetBtns, ...app.buttons].forEach((btn: HTMLButtonElement) => {
+        [...app.resetButtons, ...app.buttons].forEach((btn: HTMLButtonElement) => {
             btn.disabled = value;
         });
     }
@@ -81,7 +93,7 @@ function Connect4() {
         return (state.history.find((p) => p.x === x && p.y === y) || {}).player;
     }
 
-    function setChecker(x: any, y: number, player: string) {
+    function setChecker(x: number, y: number, player: string) {
         updateState({
             history: [...state.history, { x, y, player }],
         });
@@ -105,29 +117,28 @@ function Connect4() {
         return state.history.length === 64;
     }
 
-    function dropChecker(x: number) {
+    async function dropChecker(x: number): Promise<void> {
         showElements(app.blocker);
         const y = getAvailableY(x);
-        if (y < 0) return;
-        return animateChecker(x, y).then(() => {
-            setChecker(x, y, state.currentPlayer);
-            hideElements(app.blocker);
-            if (checkForWin(x, y)) {
-                return wait(250).then(() => {
-                    showElements(app.gameOver);
-                });
-            }
-            if (checkForTie()) {
-                return wait(250).then(() => {
-                    showElements(app.gameTie);
-                });
-            }
-            toggleTurn();
-            if (state.aiPlayers.includes(state.currentPlayer)) {
-                return aiMove();
-            }
-            return Promise.resolve();
-        });
+        if (y < 0) return Promise.resolve();
+        await animateChecker(x, y);
+        setChecker(x, y, state.currentPlayer);
+        hideElements(app.blocker);
+        if (checkForWin(x, y)) {
+            return wait(250).then(() => {
+                showElements(app.gameOver);
+            });
+        }
+        if (checkForTie()) {
+            return wait(250).then(() => {
+                showElements(app.gameTie);
+            });
+        }
+        toggleTurn();
+        if (state.aiPlayers.includes(state.currentPlayer)) {
+            return aiMove();
+        }
+        return await Promise.resolve();
     }
 
     async function animateChecker(x: number, y: number) {
@@ -193,7 +204,7 @@ function Connect4() {
 
         let x = null;
 
-        const offensiveMovesSets = sortFilterSets(possibleMatchSets, state.currentPlayer);
+        // const offensiveMovesSets = sortFilterSets(possibleMatchSets, state.currentPlayer);
         // TODO: check for easy 3 matches and
 
         // looks for any oponent matches and makes blocking move recomendations
@@ -245,9 +256,10 @@ function Connect4() {
     function toggleTurn() {
         const currentPlayer = state.currentPlayer === Players.player1 ? Players.player2 : Players.player1;
         updateState({ currentPlayer });
-        const currentPlayerName = currentPlayer[0].toUpperCase() + currentPlayer.substr(1);
+        const currentWinMessage = WinMessage[currentPlayer as keyof typeof WinMessage];
+
         app.board.className = 'turn-' + currentPlayer;
-        app.turnColor.forEach((el) => (el.innerText = currentPlayerName));
+        app.winMessage.forEach((el) => (el.innerText = currentWinMessage));
         return Promise.resolve();
     }
 }
