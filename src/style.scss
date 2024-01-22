@@ -22,7 +22,6 @@ body {
     font-size: 22px;
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
     background-image: linear-gradient(to right, #dbf5f6, #b7cae7);
 }
 
@@ -31,8 +30,7 @@ body > footer {
     display: flex;
     justify-content: space-between;
     font-size: 80%;
-    width: $size * 8;
-    margin: 1rem auto 0;
+    padding: 1.5rem;
     align-items: flex-end;
     padding-bottom: 1rem;
     color: $boardColor !important;
