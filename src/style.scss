@@ -1,21 +1,10 @@
 @import 'reset';
 
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
-        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-    text-align: center;
-    font-size: 22px;
-    display: auto !important;
-    min-height: 100vh;
-}
-
 $player1color: rgba(203, 44, 43, 1);
 $player2color: rgba(236, 216, 86, 1);
 $boardColor: rgb(43, 85, 184);
-$size: 10vmin;
-
+$size: 12vmin;
 $borderWidth: $size * 0.15;
-
 $gradientCircle: radial-gradient(
     ellipse at center,
     rgba($boardColor, 0) 1%,
@@ -25,6 +14,41 @@ $gradientCircle: radial-gradient(
     rgba($boardColor, 1) 55%,
     rgba($boardColor, 1) 100%
 );
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    text-align: center;
+    font-size: 22px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-image: linear-gradient(to right, #dbf5f6, #b7cae7);
+}
+
+body > footer {
+    flex-grow: 1;
+    display: flex;
+    justify-content: space-between;
+    font-size: 80%;
+    width: $size * 8;
+    margin: 1rem auto 0;
+    align-items: flex-end;
+    padding-bottom: 1rem;
+    color: $boardColor !important;
+    a {
+        color: $boardColor !important;
+    }
+    .version {
+        font-weight: bold;
+    }
+}
+
+#size {
+    width: $size;
+    height: $size;
+    position: fixed;
+}
 
 #template {
     display: none;
@@ -129,6 +153,9 @@ $gradientCircle: radial-gradient(
                 bottom: calc($size/-12);
                 position: absolute;
                 transition: left 0.5s ease-out;
+                @media (hover: none) {
+                    display: none;
+                }
             }
         }
 
@@ -268,21 +295,9 @@ $gradientCircle: radial-gradient(
     color: adjust-color(#fff, $alpha: -0.05);
     border: solid 1px adjust-color($boardColor, $lightness: -10%);
     border-radius: 0.5rem;
-    padding: 1.125vmin 1.5vmin;
+    padding: 0.7rem 1rem;
     font: inherit;
     cursor: pointer;
     font-size: 1.3rem;
     font-weight: 500;
-}
-
-body > footer {
-    display: flex;
-    justify-content: space-between;
-    font-size: 80%;
-    width: $size * 8;
-    margin: 1rem auto 0;
-
-    .version {
-        color: grey;
-    }
 }

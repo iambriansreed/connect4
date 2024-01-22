@@ -16,8 +16,8 @@ const ROW_COUNT = 6;
 const COLUMN_COUNT = 7;
 
 const WinMessage: Record<PLAYER, string> = {
-    player1: 'You Win!',
-    player2: 'Computer!',
+    player1: 'Red Wins!',
+    player2: 'Yellow Wins!',
 };
 
 const config = {
@@ -58,7 +58,12 @@ function main() {
         // animate dropping checkers
         app.columns.style.top = '0px';
         const topDistance = Math.round(window.outerHeight + window.outerHeight / 2);
-        transition(app.columns, { top: topDistance + 'px' }, topDistance / 2.5, 'ease-out').then(() => {
+        transition(
+            app.columns,
+            { top: topDistance + 'px' },
+            topDistance / 2.5,
+            'cubic-bezier(0.33333, 0, 0.66667, 0.33333)'
+        ).then(() => {
             // remove checker elements
             app.columns.style.transition = '';
             app.columns.style.top = '0px';
@@ -88,7 +93,7 @@ function main() {
     };
 
     const moveNextChecker = (colNumber: number) => {
-        app.nextChecker.style.left = colNumber * 10 + 'vmin';
+        app.nextChecker.style.left = colNumber * app.size.clientWidth + 'px';
     };
 
     const dropChecker = async (x: number) => {
@@ -121,7 +126,7 @@ function main() {
 
         // transitionDuration should be dependent on how far the checker travels
         const inverseY = Math.abs(y - ROW_COUNT) + 1;
-        const transitionDuration = inverseY * 45;
+        const transitionDuration = inverseY * 75;
 
         await transition(
             newChecker,
@@ -129,7 +134,7 @@ function main() {
                 top: restPos + 'px',
             },
             transitionDuration,
-            'linear'
+            'cubic-bezier(0.33333, 0, 0.66667, 0.33333)'
         );
 
         newChecker.style.position = 'relative';
@@ -253,6 +258,7 @@ function main() {
     const app = {
         board: getElement('#board'),
         columns: getElement('#board .columns'),
+        size: getElement('#size'),
         gameOver: getElement('#game-over'),
         gameTie: getElement('#game-tie'),
         gameStart: getElement('#game-start'),
