@@ -60,11 +60,14 @@ function main() {
         const topDistance = Math.round(window.outerHeight + window.outerHeight / 2);
         transition(
             app.columns,
-            { top: topDistance + 'px' },
+            {
+                transform: 'translateY(' + topDistance + 'px)',
+            },
             topDistance / 2.5,
             'cubic-bezier(0.33333, 0, 0.66667, 0.33333)'
         ).then(() => {
             // remove checker elements
+            app.columns.style.transform = '';
             app.columns.style.transition = '';
             app.columns.style.top = '0px';
             [...app.columns.children].forEach((col) => (col.innerHTML = ''));
@@ -131,12 +134,13 @@ function main() {
         await transition(
             newChecker,
             {
-                top: restPos + 'px',
+                transform: 'translateY(' + (restPos - startPos) + 'px)',
             },
             transitionDuration,
             'cubic-bezier(0.33333, 0, 0.66667, 0.33333)'
         );
 
+        newChecker.style.transform = '';
         newChecker.style.position = 'relative';
         newChecker.style.top = '';
 
