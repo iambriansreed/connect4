@@ -1,191 +1,182 @@
-import { getPossibleMatchSets, getRandom, getRandomMinMax, hideElements, showElements, wait } from './utils';
+import {
+    PLAYER,
+    createElement,
+    getElement,
+    getElements,
+    getPossibleMatchSets,
+    getRandomMinMax,
+    hideElements,
+    indexOfElement,
+    showElements,
+    transition,
+} from './utils';
 import './style.scss';
 
-const Players = {
-    player1: 'player1',
-    player2: 'player2',
-};
+const ROW_COUNT = 6;
+const COLUMN_COUNT = 7;
 
-const WinMessage = {
+const WinMessage: Record<PLAYER, string> = {
     player1: 'You Win!',
     player2: 'Computer!',
 };
 
 const config = {
-    dropSpeed: 400,
     defaultState: {
-        currentPlayer: Players.player1,
-        aiPlayers: [Players.player2],
+        currentPlayer: 'player1' as PLAYER,
+        aiPlayers: ['player2' as PLAYER],
         history: [] as { x: number; y: number; player: string }[],
-        checkers: [] as HTMLDivElement[],
-        active: false,
+        dropping: 0,
     },
+    defaultColumns: '',
 };
 
-Object.freeze(Players);
 Object.freeze(config);
 
-const getElements = <T extends Element = HTMLElement>(selector: string) =>
-    Array.from(document.querySelectorAll<T>(selector));
+type State = typeof config.defaultState;
 
-const getElement = <T extends Element = HTMLElement>(selector: string) =>
-    //
-    getElements<T>(selector)[0];
+function main() {
+    const state: State = { ...config.defaultState };
 
-function Connect4() {
-    document.body.innerHTML = document.querySelector('template')?.innerHTML || '';
+    // @ts-ignore = todo: remove
+    globalThis.state = () => state;
 
-    const app = initialize();
+    const checkerTemplate = createElement<HTMLDivElement>('checker');
+    const createCheckerElement = (player: PLAYER) => {
+        const nextChecker = checkerTemplate.cloneNode(true) as HTMLDivElement;
+        nextChecker.classList.add(player);
+        return nextChecker;
+    };
 
-    const state = { ...config.defaultState };
-
-    function initialize() {
-        const app = {
-            board: getElement('#board'),
-            blocker: getElement('#board .blocker'),
-            gameOver: getElement('#game-over'),
-            gameTie: getElement('#game-tie'),
-            gameStart: getElement('#game-start'),
-            resetButtons: getElements<HTMLButtonElement>('.reset-btn'),
-            startButton: getElement<HTMLButtonElement>('#start-btn'),
-            buttons: getElements<HTMLButtonElement>('#board button'),
-            spacesWrapper: getElements('#board .spaces'),
-            winMessage: getElements('.win-message'),
-            checkerTemplate: getElement('#template .checker'),
-            checkers: [] as HTMLDivElement[],
-        };
-
-        app.startButton.onclick = start;
-        app.resetButtons.forEach((button) => (button.onclick = reset));
-        app.buttons.forEach((button, x) => (button.onclick = () => dropChecker(x)));
-        Object.freeze(app);
-        return app;
-    }
-
-    function isActive(value: boolean) {
-        state.active = value;
-        [...app.resetButtons, ...app.buttons].forEach((btn: HTMLButtonElement) => {
-            btn.disabled = value;
-        });
-    }
-
-    function start() {
+    const start = () => {
+        if (state.dropping) return;
         hideElements(app.gameStart);
-        app.board.className = 'turn-' + state.currentPlayer;
-    }
+    };
 
-    function reset() {
-        if (state.active) return;
+    const reset = async () => {
+        if (state.dropping) return;
 
-        const ms = config.dropSpeed * 2;
-        state.checkers.forEach((c) => {
-            c.style.transition = `top ${ms}ms linear`;
-            c.style.top = window.outerHeight + window.outerHeight / 2 + 'px';
+        // animate dropping checkers
+        app.columns.style.top = '0px';
+        const topDistance = Math.round(window.outerHeight + window.outerHeight / 2);
+        transition(app.columns, { top: topDistance + 'px' }, topDistance / 2.5, 'ease-out').then(() => {
+            // remove checker elements
+            app.columns.style.transition = '';
+            app.columns.style.top = '0px';
+            [...app.columns.children].forEach((col) => (col.innerHTML = ''));
         });
-        wait(ms).then(() => state.checkers.forEach((c) => c.remove()));
+
         updateState(config.defaultState);
-        app.board.className = 'turn-' + state.currentPlayer;
         hideElements(app.gameOver);
         hideElements(app.gameTie);
-    }
+    };
 
-    function getPlayer(x: number, y: number) {
-        return (state.history.find((p) => p.x === x && p.y === y) || {}).player;
-    }
+    const getTurn = (x: number, y: number) => {
+        return state.history.find((p) => p.x === x && p.y === y);
+    };
 
-    function setChecker(x: number, y: number, player: string) {
-        updateState({
-            history: [...state.history, { x, y, player }],
-        });
-    }
-
-    function updateState(update: {
-        currentPlayer?: string;
-        aiPlayers?: string[];
-        history?: any[] | any[];
-        checkers?: HTMLDivElement[];
-    }) {
+    const updateState = (update: Partial<State>) => {
         return Object.assign(state, update);
-    }
+    };
 
-    function checkForWin(x: any, y: number) {
+    const checkForWin = (x: any, y: number) => {
         const sets = getPossibleMatchSets(x, y);
-        return sets.some((set) => set.every((pos) => getPlayer(...pos) === state.currentPlayer));
-    }
+        return sets.some((set) => set.every((pos) => getTurn(...pos)?.player === state.currentPlayer));
+    };
 
-    function checkForTie() {
+    const checkForTie = () => {
         return state.history.length === 64;
-    }
+    };
 
-    async function dropChecker(x: number): Promise<void> {
-        showElements(app.blocker);
+    const moveNextChecker = (colNumber: number) => {
+        app.nextChecker.style.left = colNumber * 10 + 'vmin';
+    };
+
+    const dropChecker = async (x: number) => {
+        if (state.dropping) return;
+
         const y = getAvailableY(x);
+
         if (y < 0) return Promise.resolve();
-        await animateChecker(x, y);
-        setChecker(x, y, state.currentPlayer);
-        hideElements(app.blocker);
+
+        updateState({ dropping: state.dropping + 1 });
+
+        const newChecker = createCheckerElement(state.currentPlayer);
+
+        try {
+            app.column[x].appendChild(newChecker);
+        } catch (e) {
+            console.log(x, state.currentPlayer);
+            throw e;
+        }
+
+        const restPos = newChecker.offsetTop + newChecker.getBoundingClientRect().height;
+        const startPos = app.nextChecker.offsetTop;
+
+        // hide next checker
+        app.nextChecker.style.opacity = '0';
+
+        // position new checker where next next checker was
+        newChecker.style.top = startPos + 'px';
+        newChecker.style.position = 'fixed';
+
+        // transitionDuration should be dependent on how far the checker travels
+        const inverseY = Math.abs(y - ROW_COUNT) + 1;
+        const transitionDuration = inverseY * 45;
+
+        await transition(
+            newChecker,
+            {
+                top: restPos + 'px',
+            },
+            transitionDuration,
+            'linear'
+        );
+
+        newChecker.style.position = 'relative';
+        newChecker.style.top = '';
+
+        app.nextChecker.style.opacity = '1';
+
+        updateState({
+            history: [...state.history, { x, y, player: state.currentPlayer }],
+        });
+
         if (checkForWin(x, y)) {
-            return wait(250).then(() => {
-                showElements(app.gameOver);
-            });
+            app.winMessage.innerText = WinMessage[state.currentPlayer];
+            showElements(app.gameOver);
+
+            updateState({ dropping: state.dropping - 1 });
+            return;
         }
         if (checkForTie()) {
-            return wait(250).then(() => {
-                showElements(app.gameTie);
-            });
+            showElements(app.gameTie);
+            updateState({ dropping: state.dropping - 1 });
+            return;
         }
-        toggleTurn();
-        if (state.aiPlayers.includes(state.currentPlayer)) {
-            return aiMove();
+
+        // toggle turn
+        const nextPlayer = state.currentPlayer === 'player1' ? 'player2' : 'player1';
+
+        updateState({ dropping: state.dropping - 1, currentPlayer: nextPlayer });
+
+        if (state.aiPlayers.includes(nextPlayer)) {
+            await aiMove();
         }
-        return await Promise.resolve();
-    }
+    };
 
-    async function animateChecker(x: number, y: number) {
-        isActive(true);
+    const getAvailableY = (x: number) => {
+        if (!app.column[x]) return -1;
+        const count = app.column[x]?.children.length;
+        return count < ROW_COUNT ? count : -1;
+    };
 
-        y = Math.abs(y - 7) + 1;
-        const ms = (config.dropSpeed / 8) * y;
-
-        const clone = app.checkerTemplate.cloneNode(true) as HTMLDivElement;
-        app.board.appendChild(clone);
-        const c = app.board.lastChild as HTMLDivElement;
-        state.checkers.push(c);
-
-        c.style.transform = 'rotate(' + getRandom(1, 360) + 'deg)';
-        c.classList.add(state.currentPlayer);
-
-        setTimeout(() => {
-            c.style.transition = '';
-        }, ms + 100);
-
-        c.style.transition = `top ${ms}ms linear`;
-        c.style.left = x * 9 + 'vmin';
-        c.style.display = '';
-
-        return wait(50).then(() => {
-            c.style.top = y * 9 + 'vmin';
-            return wait(ms + 300).then(() => {
-                isActive(false);
-                return true;
-            });
-        });
-    }
-
-    function getAvailableY(x: number) {
-        for (let y = 0; y < 8; y++) {
-            if (!getPlayer(x, y)) return y;
-        }
-        return -1;
-    }
-
-    function aiMove() {
+    const aiMove = async () => {
         const lastPos = state.history[state.history.length - 1];
 
         const sortFilterSets = (matchSets: [number, number][][], player: string) =>
             matchSets
                 .map((set) => ({
-                    matches: set.filter((pos) => getPlayer(...pos) === player).length,
+                    matches: set.filter((pos) => getTurn(...pos)?.player === player).length,
                     moves: set.filter((pos) => getAvailableY(pos[0]) === pos[1]),
                 }))
                 .filter((moveSets) => moveSets.moves.length > 0)
@@ -207,7 +198,7 @@ function Connect4() {
         // const offensiveMovesSets = sortFilterSets(possibleMatchSets, state.currentPlayer);
         // TODO: check for easy 3 matches and
 
-        // looks for any oponent matches and makes blocking move recomendations
+        // looks for any opponent matches and makes blocking move recommendations
         const defensiveMovesSets = sortFilterSets(possibleMatchSets, lastPos.player);
 
         if (defensiveMovesSets.length) {
@@ -218,8 +209,8 @@ function Connect4() {
 
                 // check if defensiveMove has a follow up win
 
-                // check if next y exists if it doesn't don't wory about it
-                if (defensiveMove[1] === 7) {
+                // check if next y exists if it doesn't don't worry about it
+                if (defensiveMove[1] === COLUMN_COUNT) {
                     x = defensiveMove[0];
                     return true;
                 }
@@ -228,7 +219,7 @@ function Connect4() {
                 const predictiveMove = [defensiveMove[0], defensiveMove[1] + 1];
                 const predictiveMatchSets = getPossibleMatchSets(predictiveMove[0], predictiveMove[1])
                     .map((set) => ({
-                        matches: set.filter((pos) => getPlayer(...pos) === lastPos.player).length,
+                        matches: set.filter((pos) => getTurn(...pos)?.player === lastPos.player).length,
                     }))
                     .sort((a, b) => {
                         if (a.matches > b.matches) return -1;
@@ -243,25 +234,74 @@ function Connect4() {
             });
         }
 
-        if (!x) {
-            x = getRandomMinMax(0, 7);
-            while (getAvailableY(x) === -1) {
-                if (++x > 7) x = 0;
+        // if no defensive moves are found then look for offensive moves
+        // todo: until we have a better ai we will just pick a random column
+        if (x === null) {
+            let availableColumns: number[] = [];
+            for (let i = 0; i < 7; i++) {
+                console.log(i);
+                if (getAvailableY(i) !== -1) availableColumns.push(i);
             }
+            console.log({ availableColumns });
+            return availableColumns[getRandomMinMax(0, availableColumns.length)];
         }
 
         return dropChecker(x);
-    }
+    };
 
-    function toggleTurn() {
-        const currentPlayer = state.currentPlayer === Players.player1 ? Players.player2 : Players.player1;
-        updateState({ currentPlayer });
-        const currentWinMessage = WinMessage[currentPlayer as keyof typeof WinMessage];
+    // create element references
+    const app = {
+        board: getElement('#board'),
+        columns: getElement('#board .columns'),
+        gameOver: getElement('#game-over'),
+        gameTie: getElement('#game-tie'),
+        gameStart: getElement('#game-start'),
+        resetButtons: getElements<HTMLButtonElement>('.reset-btn'),
+        startButton: getElement<HTMLButtonElement>('#start-btn'),
+        buttons: getElements<HTMLButtonElement>('#board button'),
+        spacesWrapper: getElements('#board .spaces'),
+        winMessage: getElement('.win-message'),
+        checkers: getElement<HTMLDivElement>('.checkers'),
+        next: getElement<HTMLDivElement>('.next .track'),
+        nextChecker: createCheckerElement('player1'),
+        column: [] as HTMLElement[],
+    };
 
-        app.board.className = 'turn-' + currentPlayer;
-        app.winMessage.forEach((el) => (el.innerText = currentWinMessage));
-        return Promise.resolve();
-    }
+    app.gameStart.style.display = 'flex';
+
+    // attach events to board
+
+    app.next.appendChild(app.nextChecker);
+
+    app.column = [...app.columns.children] as HTMLElement[];
+
+    const onColumnIndex = (event: MouseEvent, callback: (index: number) => void) => {
+        const element = event.target as HTMLElement;
+        if (!element.classList.contains('column')) return;
+
+        const index = indexOfElement(element);
+        if (index === -1 || index >= app.column.length) {
+            console.error('column not found ', { event, element, index });
+            return;
+        }
+
+        callback(index);
+    };
+
+    app.board.onmouseover = (event) => onColumnIndex(event, moveNextChecker);
+    app.board.onclick = (event) => onColumnIndex(event, dropChecker);
+
+    // attach events
+    app.startButton.onclick = start;
+    app.resetButtons.forEach((button) => (button.onclick = reset));
+
+    // @ts-ignore = todo: remove
+    globalThis.app = () => app;
 }
 
-Connect4();
+for (let i = 0; i < 1000000; i++) {
+    const x = getRandomMinMax(0, 7);
+    x === 7 && console.log(x);
+}
+
+addEventListener('load', main);

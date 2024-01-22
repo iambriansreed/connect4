@@ -6,12 +6,15 @@ body {
     text-align: center;
     font-size: 22px;
     display: auto !important;
+    min-height: 100vh;
 }
 
 $player1color: rgba(203, 44, 43, 1);
 $player2color: rgba(236, 216, 86, 1);
 $boardColor: rgb(43, 85, 184);
-$size: 9vmin;
+$size: 10vmin;
+
+$borderWidth: $size * 0.15;
 
 $gradientCircle: radial-gradient(
     ellipse at center,
@@ -23,165 +26,207 @@ $gradientCircle: radial-gradient(
     rgba($boardColor, 1) 100%
 );
 
-@mixin space-bg($checker) {
-    background: $gradientCircle, $checker;
-}
-
 #template {
     display: none;
 }
 
 #board {
     position: relative;
-    height: $size * 9;
-    width: $size * 8;
-    margin: 5vh auto 2vh;
+    box-sizing: content-box;
+    width: fit-content;
+    margin: 2vh auto 2vh;
     display: flex;
-    flex-wrap: wrap;
-    .wrap {
-        position: relative;
-        height: 9vmin * 8;
-        width: 9vmin * 8;
-        display: flex;
-        flex-wrap: wrap;
-
-        $wrap: 0.75vmin;
-
-        .left,
-        .right {
-            position: absolute;
-            background: $boardColor;
-            width: $wrap + 0.1vmin;
-            height: 9vmin * 8;
-        }
-
-        .bottom {
-            position: absolute;
-            background: $boardColor;
-            bottom: -($wrap);
-            left: -$wrap;
-            height: $wrap + 0.2vmin;
-            width: (9vmin * 8) + ($wrap * 2);
-        }
-
-        .left {
-            top: 0;
-            left: -($wrap);
-        }
-        .right {
-            top: 0;
-            right: -$wrap;
-        }
-    }
-
-    .grid {
-        height: $size;
-        width: $size;
-        position: relative;
-        z-index: 2;
-        &.space {
-            position: relative;
-            background: $gradientCircle;
-            &.player1 {
-                @include space-bg($player1color);
-            }
-            &.player2 {
-                @include space-bg($player2color);
-            }
-        }
-        &.button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            button {
-                outline: none !important;
-                cursor: pointer;
-                padding: 0;
-                border-radius: $size;
-                background: transparent;
-                display: block;
-                width: 70%;
-                height: 70%;
-            }
-        }
-    }
+    flex-direction: column;
+    border-radius: 0.5rem;
+    overflow: visible;
 
     .checker {
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 1;
+        background: green;
+        border-radius: 100%;
+        width: $size;
+        height: $size;
+        z-index: 2;
         display: flex;
         align-items: center;
         justify-content: center;
-        width: $size;
-        height: $size;
 
-        div {
-            width: $size - 1.8vmin;
-            height: $size - 1.8vmin;
-            border-radius: $size;
-            box-shadow: inset 0 0 2vmin rgba(black, 0.5);
-            font-weight: bold;
-            line-height: 7vmin;
-            font-size: 5vmin;
+        > div {
+            border-radius: 100%;
+            border: solid 1px rgba(0, 0, 0, 0.25);
+            width: $size * 0.95;
+            height: $size * 0.95;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(
+                60deg,
+                //
+                rgba(255, 255, 255, 0.2) 0%,
+                //
+                rgba(255, 255, 255, 0.1) 10%,
+                //
+                rgba(0, 0, 0, 0.2) 100%
+            );
+
+            > div {
+                border-radius: 100%;
+                width: $size * 0.75;
+                height: $size * 0.75;
+                background: green;
+                > div {
+                    border-radius: 100%;
+                    width: $size * 0.75;
+                    height: $size * 0.75;
+                    background: linear-gradient(
+                        170deg,
+                        //
+                        rgba(255, 255, 255, 0.7) 0%,
+                        //
+                        rgba(255, 255, 255, 0.1) 5%,
+                        //
+                        rgba(0, 0, 0, 0.2) 100%
+                    );
+                    border: solid 1px rgba(0, 0, 0, 0.25);
+                }
+            }
         }
+
         &.player1 {
-            div {
-                background: $player1color;
-                color: lighten($player1color, 4%);
-                text-shadow: rgba(black, 0.025) 0.1vmin 0 0.5vmin;
+            background: $player1color;
+            > div {
+                > div {
+                    background: $player1color;
+                }
             }
         }
         &.player2 {
-            div {
-                background: $player2color;
-                color: lighten($player2color, 0.5%);
-                text-shadow: rgba(black, 0.0625) 0.1vmin 0 0.5vmin;
+            background: $player2color;
+            > div {
+                > div {
+                    background: $player2color;
+                }
             }
         }
     }
 
-    &.turn-player1 {
-        button:hover {
-            background: $player1color;
+    .next {
+        height: $size;
+        padding: 0 $borderWidth;
+        position: relative;
+
+        .track {
+            position: relative;
+            height: $size;
+            display: flex;
+            overflow: hidden;
+
+            .column {
+                width: $size;
+            }
+
+            .checker {
+                left: 0;
+                bottom: calc($size/-12);
+                position: absolute;
+                transition: left 0.5s ease-out;
+            }
         }
-        // .checker {
-        //     div {
-        //         background: $player1color;
-        //     }
-        // }
-    }
-    &.turn-player2 {
-        button:hover {
-            background: $player2color;
+
+        .opening {
+            width: 100%;
+            position: absolute;
+            display: flex;
+            box-sizing: border-box;
+            flex-direction: column;
+            background: $boardColor;
+            border: solid $borderWidth $boardColor;
+            border-bottom-width: 0;
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
+            height: $borderWidth * 2.75;
+            bottom: 0;
+            left: 0;
+            right: 0;
+
+            .background {
+                height: $borderWidth;
+                z-index: 1;
+                background: transparent;
+                div {
+                    background-color: rgba(0, 0, 0, 0.25);
+                    width: 100%;
+                    height: $borderWidth * 0.5;
+                    margin-top: $borderWidth * 0.5;
+                    border-top-left-radius: $size * 0.1;
+                    border-top-right-radius: $size * 0.1;
+                }
+            }
+
+            .foreground {
+                height: $borderWidth;
+                z-index: 4;
+                background: transparent;
+                top: $borderWidth;
+                border-bottom: solid $borderWidth $boardColor;
+                div {
+                    background-color: rgba(0, 0, 0, 0.25);
+                    width: 100%;
+                    height: $borderWidth * 0.5;
+                    margin-bottom: $borderWidth * 0.5;
+                    border-bottom-left-radius: $size * 0.1;
+                    border-bottom-right-radius: $size * 0.1;
+                }
+            }
         }
-        // .checker {
-        //     div {
-        //         background: $player2color;
-        //     }
-        // }
     }
-    .blocker {
-        display: none;
+
+    > .foreground {
+        position: absolute;
+        top: $size;
+        width: 100%;
+        bottom: 0;
+        z-index: 3;
+        background-image: $gradientCircle;
+        background-position: 0 0, $size $size;
+        background-size: $size $size;
+        pointer-events: none;
+        border: solid ($borderWidth) $boardColor;
+        border-top: none;
+        border-bottom-left-radius: 0.5rem;
+        border-bottom-right-radius: 0.5rem;
+        margin-bottom: -1.35vmin;
+    }
+
+    .columns {
+        display: flex;
+        flex-direction: row;
+        position: relative;
+        margin-right: 1.35vmin;
+        margin-left: 1.35vmin;
+
+        .column {
+            display: flex;
+            flex-direction: column-reverse;
+            position: relative;
+            justify-content: flex-start;
+            height: $size * 6;
+            width: $size;
+            box-sizing: content-box;
+
+            .checker {
+                z-index: 1;
+            }
+        }
+    }
+
+    .checkers {
         position: absolute;
         top: 0;
-        left: 0;
-        bottom: 0;
-        right: 0;
-        z-index: 2;
+        right: $borderWidth;
+        bottom: $borderWidth;
+        left: $borderWidth;
+        transition: top 500ms ease-out;
     }
-
-    // .spaces {
-    //     position: relative;
-    //     z-index: 2;
-    //     border: solid 10px $boardColor;
-    //     overflow: hidden;
-    //     width: ($size * 8) + 20px;
-    //     height: ($size * 8) + 20px;
-
-    //     }
-    // }
 }
 
 #game-tie,
@@ -203,23 +248,26 @@ $gradientCircle: radial-gradient(
         left: 50%;
         transform: translate(-50%, -50%);
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.75);
-        padding: 3vmin 5vmin;
-        border-radius: 2vmin;
+        padding: 2rem;
+        border-radius: 0.5rem;
         h1 {
             font-size: 3rem;
-            margin-top: 1vmin;
-            margin-bottom: 2vmin;
+            margin-bottom: 1rem;
         }
         p {
-            margin-bottom: 2vmin;
+            margin-bottom: 1rem;
+        }
+        footer {
+            margin-top: 2rem;
         }
     }
 }
 
 .btn {
-    background: #eee;
-    border: solid 1px #aaa;
-    border-radius: 2vmin;
+    background: $boardColor;
+    color: adjust-color(#fff, $alpha: -0.05);
+    border: solid 1px adjust-color($boardColor, $lightness: -10%);
+    border-radius: 0.5rem;
     padding: 1.125vmin 1.5vmin;
     font: inherit;
     cursor: pointer;

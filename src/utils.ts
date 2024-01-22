@@ -1,7 +1,59 @@
+export type PLAYER = 'player1' | 'player2';
+
+export async function transition(
+    element: HTMLElement,
+    style: Partial<CSSStyleDeclaration>,
+    durationMs: number,
+    transitionTimingFunction: CSSStyleDeclaration['transitionTimingFunction']
+) {
+    return new Promise<void>((resolve) => {
+        const transition = Object.keys(style)
+            .map((key) => `${key} ${Math.round(durationMs)}ms ${transitionTimingFunction}`)
+            .join(',');
+
+        element.style.transition = transition;
+
+        setTimeout(() => {
+            Object.assign(element.style, style);
+        }, 1);
+
+        setTimeout(() => {
+            element.style.transition = '';
+            resolve();
+        }, durationMs + 50);
+    });
+}
+
+export const indexOfElement = (child: ChildNode | null) => {
+    if (!child) return -1;
+    return [...child.parentElement!.children].reduce((value, node, index) => {
+        return node === child ? index : value;
+    }, -1);
+};
+
+export const getElements = <T extends Element = HTMLElement>(selector: string) =>
+    Array.from(document.querySelectorAll<T>(selector));
+
+export const getElement = <T extends Element = HTMLElement>(selector: string) =>
+    //
+    getElements<T>(selector)[0];
+
+export const createElement = <T>(templateId: string) => {
+    const tempElement = document.createElement('temp');
+    tempElement.innerHTML = getElement<HTMLDivElement>('template#' + templateId).innerHTML.trim();
+    return tempElement.firstChild as T;
+};
+
+/**
+ * The maximum is exclusive and the minimum is inclusive
+ * @param min
+ * @param max
+ * @returns a random number between min and max
+ */
 export function getRandomMinMax(min: number, max: number) {
     min = Math.ceil(min);
     max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+    return Math.floor(Math.random() * (max - min)) + min;
 }
 
 export function showElements(...elements: HTMLElement[]) {

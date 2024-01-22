@@ -7,129 +7,79 @@
         <meta name="author" content="iambriansreed" />
         <meta name="viewport" content="initial-scale=1, maximum-scale=1" />
     </head>
-
     <body>
-        <template>
-            <div id="template">
-                <div class="checker" style="display: none">
-                    <div>4</div>
+        <div id="game-start">
+            <div class="modal">
+                <h1>Welcome!</h1>
+                <p>You are red.</p>
+                <p>Computer is yellow.</p>
+                <footer>
+                    <button type="button" class="btn" id="start-btn">Start</button>
+                </footer>
+            </div>
+        </div>
+        <div id="board" data-turn="player1">
+            <div class="next">
+                <div class="opening">
+                    <div class="background">
+                        <div></div>
+                    </div>
+                    <div class="foreground">
+                        <div></div>
+                    </div>
+                </div>
+                <div class="track">
+                    <div class="column"></div>
+                    <div class="column"></div>
+                    <div class="column"></div>
+                    <div class="column"></div>
+                    <div class="column"></div>
+                    <div class="column"></div>
+                    <div class="column"></div>
                 </div>
             </div>
-            <div id="game-start" style="display: block">
-                <div class="modal">
-                    <h1>Welcome!</h1>
-                    <p>You are red.</p>
-                    <p>Computer is yellow.</p>
-                    <p>
-                        <button type="button" class="btn" id="start-btn">Start</button>
-                    </p>
-                </div>
+            <div class="columns">
+                <div class="column"></div>
+                <div class="column"></div>
+                <div class="column"></div>
+                <div class="column"></div>
+                <div class="column"></div>
+                <div class="column"></div>
+                <div class="column"></div>
             </div>
-            <div id="board">
-                <div class="grid button"><button type="button"></button></div>
-                <div class="grid button"><button type="button"></button></div>
-                <div class="grid button"><button type="button"></button></div>
-                <div class="grid button"><button type="button"></button></div>
-                <div class="grid button"><button type="button"></button></div>
-                <div class="grid button"><button type="button"></button></div>
-                <div class="grid button"><button type="button"></button></div>
-                <div class="grid button"><button type="button"></button></div>
-                <div class="wrap">
-                    <div class="left"></div>
-                    <div class="right"></div>
-                    <div class="bottom"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                    <div class="grid space"></div>
-                </div>
-                <div class="blocker"></div>
+            <div class="foreground"></div>
+        </div>
+        <p style="text-align: center">
+            <button type="button" class="btn reset-btn">Reset</button>
+        </p>
+        <div id="game-over">
+            <div class="modal">
+                <h1><span class="win-message"></span></h1>
+                <footer>
+                    <button type="button" class="btn reset-btn">Reset</button>
+                </footer>
             </div>
-            <p style="text-align: center">
-                <button type="button" class="btn reset-btn">Reset</button>
-            </p>
-            <div id="game-over">
-                <div class="modal">
-                    <h1><span class="win-message"></span></h1>
-                    <p>
-                        <button type="button" class="btn reset-btn">Reset</button>
-                    </p>
-                </div>
+        </div>
+        <div id="game-tie">
+            <div class="modal">
+                <h1>Tie Game!</h1>
+                <p>That was impressive!</p>
+                <footer>
+                    <button type="button" class="btn reset-btn">Reset</button>
+                </footer>
             </div>
-            <div id="game-tie">
-                <div class="modal">
-                    <h1>Tie Game!</h1>
-                    <p>That was impressive!</p>
-                    <p>
-                        <button type="button" class="btn reset-btn">Reset</button>
-                    </p>
-                </div>
-            </div>
-            <footer>
-                <div>Made with ❤️ by <a href="/">Brian</a>.</div>
-                <div class="version">v0.4.0</div>
-            </footer>
-        </template>
+        </div>
+        <footer>
+            <div>Made with ❤️ by <a href="/">Brian</a>.</div>
+            <div class="version">v0.4.1</div>
+        </footer>
         <script type="module" src="/src/main.ts"></script>
+        <template id="checker">
+            <div class="checker">
+                <div>
+                    <div><div></div></div>
+                </div>
+            </div>
+        </template>
     </body>
 </html>
