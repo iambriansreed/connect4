@@ -22,7 +22,8 @@ body {
     font-size: 22px;
     display: flex;
     flex-direction: column;
-    background-image: linear-gradient(to right, #dbf5f6, #b7cae7);
+    background: #222;
+    background-size: cover;
 }
 
 body > footer {
