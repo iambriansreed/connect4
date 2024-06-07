@@ -6,15 +6,32 @@
         <meta name="description" content="Connect 4 - AI" />
         <meta name="author" content="iambriansreed" />
         <meta name="viewport" content="initial-scale=1, maximum-scale=1" />
-      <script type="module" crossorigin src="/assets/index-2ZGtY9Y-.js"></script>
-      <link rel="stylesheet" crossorigin href="/assets/index-5chlQ1cB.css">
+      <script type="module" crossorigin src="/assets/index-g3mCtTOB.js"></script>
+      <link rel="stylesheet" crossorigin href="/assets/index-C1WFTm8V.css">
     </head>
     <body>
-        <div id="game-start">
+        <div id="game-start" style="display: flex">
             <div class="modal">
                 <h1>Welcome!</h1>
-                <p>You are red.</p>
-                <p>Computer is yellow.</p>
+                <p>This is a version of Connect 4 that you can play against some genuinely rudimentary AI.</p>
+                <div class="intro">
+                    <div>
+                        <div class="checker player1">
+                            <div>
+                                <div><div></div></div>
+                            </div>
+                        </div>
+                        <p>You are red.</p>
+                    </div>
+                    <div>
+                        <div class="checker player2">
+                            <div>
+                                <div><div></div></div>
+                            </div>
+                        </div>
+                        <p>Computer is yellow.</p>
+                    </div>
+                </div>
                 <footer>
                     <button type="button" class="btn" id="start-btn">Start</button>
                 </footer>
@@ -38,6 +55,11 @@
                     <div class="column"></div>
                     <div class="column"></div>
                     <div class="column"></div>
+                    <div class="checker player1">
+                        <div>
+                            <div><div></div></div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="columns">
@@ -53,9 +75,9 @@
         </div>
         <div id="game-over">
             <div class="modal">
-                <h1><span class="win-message"></span></h1>
+                <h1><span id="win-message"></span></h1>
                 <footer>
-                    <button type="button" class="btn reset-btn">Reset</button>
+                    <button type="button" data-id="reset-btn" class="btn">Reset</button>
                 </footer>
             </div>
         </div>
@@ -64,21 +86,14 @@
                 <h1>Tie Game!</h1>
                 <p>That was impressive!</p>
                 <footer>
-                    <button type="button" class="btn reset-btn">Reset</button>
+                    <button type="button" data-id="reset-btn" class="btn">Reset</button>
                 </footer>
             </div>
         </div>
         <footer>
             <div>Made with ❤️ by <a href="https://iambrian.com">Brian</a>.</div>
-            <div class="version">0.4.5</div>
+            <div class="version">0.4.7</div>
         </footer>
-        <template id="checker">
-            <div class="checker">
-                <div>
-                    <div><div></div></div>
-                </div>
-            </div>
-        </template>
         <div id="size"></div>
     </body>
 </html>
