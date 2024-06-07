@@ -8,11 +8,28 @@
         <meta name="viewport" content="initial-scale=1, maximum-scale=1" />
     </head>
     <body>
-        <div id="game-start">
+        <div id="game-start" style="display: flex">
             <div class="modal">
                 <h1>Welcome!</h1>
-                <p>You are red.</p>
-                <p>Computer is yellow.</p>
+                <p>This is a version of Connect 4 that you can play against some genuinely rudimentary AI.</p>
+                <div class="intro">
+                    <div>
+                        <div class="checker player1">
+                            <div>
+                                <div><div></div></div>
+                            </div>
+                        </div>
+                        <p>You are red.</p>
+                    </div>
+                    <div>
+                        <div class="checker player2">
+                            <div>
+                                <div><div></div></div>
+                            </div>
+                        </div>
+                        <p>Computer is yellow.</p>
+                    </div>
+                </div>
                 <footer>
                     <button type="button" class="btn" id="start-btn">Start</button>
                 </footer>
@@ -36,6 +53,11 @@
                     <div class="column"></div>
                     <div class="column"></div>
                     <div class="column"></div>
+                    <div class="checker player1">
+                        <div>
+                            <div><div></div></div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="columns">
@@ -51,9 +73,9 @@
         </div>
         <div id="game-over">
             <div class="modal">
-                <h1><span class="win-message"></span></h1>
+                <h1><span id="win-message"></span></h1>
                 <footer>
-                    <button type="button" class="btn reset-btn">Reset</button>
+                    <button type="button" data-id="reset-btn" class="btn">Reset</button>
                 </footer>
             </div>
         </div>
@@ -62,7 +84,7 @@
                 <h1>Tie Game!</h1>
                 <p>That was impressive!</p>
                 <footer>
-                    <button type="button" class="btn reset-btn">Reset</button>
+                    <button type="button" data-id="reset-btn" class="btn">Reset</button>
                 </footer>
             </div>
         </div>
@@ -70,14 +92,7 @@
             <div>Made with ❤️ by <a href="https://iambrian.com">Brian</a>.</div>
             <div class="version">%version%</div>
         </footer>
-        <script type="module" src="/src/main.ts"></script>
-        <template id="checker">
-            <div class="checker">
-                <div>
-                    <div><div></div></div>
-                </div>
-            </div>
-        </template>
         <div id="size"></div>
+        <script type="module" src="/src/main.ts"></script>
     </body>
 </html>
