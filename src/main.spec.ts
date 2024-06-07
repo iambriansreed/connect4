@@ -1,5 +1,3 @@
-import { getWinningSet } from './utils';
-
 type TestSet = {
     grid: [number, number, number, number, number, number, number][];
     lastPoint: Point;
@@ -97,7 +95,7 @@ const testSets: TestSet[] = [
 ];
 
 describe('getWinningSet', function () {
-    testSets.forEach(({ grid, lastPoint, expected }) => {
+    testSets.forEach(({ grid }) => {
         // const history = gridToHistory(grid);
         // const received = getWinningSet(history, lastPoint);
 
