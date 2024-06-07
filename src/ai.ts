@@ -10,12 +10,12 @@ const isWithinBounds = (x: number, y: number) => x >= 0 && x < COLUMN_COUNT && y
 globalThis.aiLog = [];
 
 const log = (...message: any[]) => {
-    console.log(...message);
+    app.debug && console.log(...message);
     globalThis.aiLog[globalThis.aiLog.length - 1].push(message);
 };
 
 const logClear = () => {
-    console.clear();
+    app.debug && console.clear();
     globalThis.aiLog.push([]);
 };
 
