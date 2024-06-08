@@ -30,26 +30,25 @@ const PATTERNS: Record<MoveMatch, string[]> = {
     match2Next: ['no', 'on'],
 };
 
-const MOVE_MATCH_PRIORITY: {
+const MOVE_PRIORITY: {
     key: MoveMatch;
     type: MoveType;
     value: number;
 }[] = [
+    // this offensive move is prioritized over the defensive move
     { key: 'match4', type: 'offensive', value: 100 },
-
     { key: 'match4', type: 'defensive', value: 90 },
 
     // this defensive move is prioritized over the offensive move
-    // more important we block the opponent from getting 3 in a row then getting 3 in a row ourselves
     { key: 'match3', type: 'defensive', value: 80 },
+    // more important we block the opponent from getting 3 in a row then getting 3 in a row ourselves
     { key: 'match3', type: 'offensive', value: 70 },
 
     // this offensive move is prioritized over the defensive move
     { key: 'match2', type: 'offensive', value: 60 },
     { key: 'match2', type: 'defensive', value: 50 },
 
-    // nad moves
-    { key: 'match2Next', type: 'defensive', value: -1 },
+    // bad moves
     { key: 'match3Next', type: 'defensive', value: -1 },
     { key: 'match4Next', type: 'offensive', value: -1 },
 ];
@@ -107,7 +106,7 @@ export default function getAiMove() {
                 })();
             });
 
-            for (const { key, value } of MOVE_MATCH_PRIORITY.filter((m) => m.type === moveType)) {
+            for (const { key, value } of MOVE_PRIORITY.filter((m) => m.type === moveType)) {
                 for (const pattern of PATTERNS[key]) {
                     const matchIndex = encoding.indexOf(pattern);
                     if (matchIndex == -1) continue;
@@ -149,17 +148,14 @@ export default function getAiMove() {
 
     if (!availableYs.filter(NonNullish).length) throw new Error('No available moves');
 
-    const { badMoves, goodMoves } = state.plays.reduce(
-        (moves, play) => {
-            const { goodMoves, badMoves } = getMoves(play);
+    const goodMoves: GoodMove[] = [];
+    const badMoves: BadMove[] = [];
 
-            moves.goodMoves.push(...goodMoves);
-            moves.badMoves.push(...badMoves);
-
-            return moves;
-        },
-        { goodMoves: [] as GoodMove[], badMoves: [] as BadMove[] }
-    );
+    state.plays.forEach((play) => {
+        const moves = getMoves(play);
+        goodMoves.push(...moves.goodMoves);
+        badMoves.push(...moves.badMoves);
+    });
 
     goodMoves.sort((a, b) => b.value - a.value);
 
@@ -169,17 +165,12 @@ export default function getAiMove() {
             return xs;
         }, [] as number[]);
         const index = getRandomMinMax(0, availableXs.length - 1);
-
-        const x = availableXs[index];
-        return x;
+        return availableXs[index];
     }
 
-    const bestMove = goodMoves[0];
-
-    // make the move with the highest value unless that doesn't help the opponent
-    if (bestMove) {
-        return bestMove.x;
-    }
+    // make the move with the highest value that does not help the opponent
+    const bestMove = goodMoves.find((m) => !badMoves.some((bm) => bm.x === m.x));
+    if (bestMove) return bestMove.x;
 
     // attempt to make a move without a negative value
     const bestAvailableYs = availableYs.filter((x) => !goodMoves.some((m) => m.x === x));
