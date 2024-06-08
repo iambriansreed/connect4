@@ -1,5 +1,5 @@
 import { COLUMN_COUNT, RANGES, ROW_COUNT } from './constants';
-import { NonNullish } from './utils';
+import { NonNullish, getRandomMinMax } from './utils';
 
 declare module globalThis {
     var aiLog: any[];
@@ -9,16 +9,6 @@ const isWithinBounds = (x: number, y: number) => x >= 0 && x < COLUMN_COUNT && y
 
 globalThis.aiLog = [];
 
-const log = (...message: any[]) => {
-    app.debug && console.log(...message);
-    globalThis.aiLog[globalThis.aiLog.length - 1].push(message);
-};
-
-const logClear = () => {
-    app.debug && console.clear();
-    globalThis.aiLog.push([]);
-};
-
 const POINT_CODE = {
     unavailable: 'u',
     occupied: 'o',
@@ -27,124 +17,127 @@ const POINT_CODE = {
     outOfBounds: 'x',
 };
 
-const MOVE_VALUES = {
-    match4: 100,
-    match3: 80,
-    match2: 60,
-    match4opponent: -100,
-    match3opponent: -80,
-    match2opponent: -60,
-};
-
-const MOVE_VALUES_MATCHES: {
-    key: keyof typeof MOVE_VALUES;
-    matches: string[];
-}[] = [
-    {
-        key: 'match4',
-        matches: ['aooo', 'oooa', 'oaoo', 'ooao'],
-    },
-    {
-        key: 'match3',
-        matches: ['aoo', 'ooa', 'oao'],
-    },
-    {
-        key: 'match2',
-        matches: ['ao', 'oa'],
-    },
-    {
-        key: 'match4opponent',
-        matches: ['nooo', 'ooon', 'onoo', 'oono'],
-    },
-    {
-        key: 'match3opponent',
-        matches: ['noo', 'oon', 'ono'],
-    },
-    {
-        key: 'match2opponent',
-        matches: ['no', 'on'],
-    },
-];
+type MoveMatch = 'match4' | 'match3' | 'match2' | 'match4Next' | 'match3Next' | 'match2Next';
 
 type MoveType = 'offensive' | 'defensive';
 
-type Move = {
+const PATTERNS: Record<MoveMatch, string[]> = {
+    match4: ['aooo', 'oooa', 'oaoo', 'ooao'],
+    match3: ['aoo', 'ooa', 'oao'],
+    match2: ['ao', 'oa'],
+    match4Next: ['nooo', 'ooon', 'onoo', 'oono'],
+    match3Next: ['noo', 'oon', 'ono'],
+    match2Next: ['no', 'on'],
+};
+
+const MOVE_MATCH_PRIORITY: {
+    key: MoveMatch;
+    type: MoveType;
+    value: number;
+}[] = [
+    { key: 'match4', type: 'offensive', value: 100 },
+
+    { key: 'match4', type: 'defensive', value: 90 },
+
+    // this defensive move is prioritized over the offensive move
+    // more important we block the opponent from getting 3 in a row then getting 3 in a row ourselves
+    { key: 'match3', type: 'defensive', value: 80 },
+    { key: 'match3', type: 'offensive', value: 70 },
+
+    // this offensive move is prioritized over the defensive move
+    { key: 'match2', type: 'offensive', value: 60 },
+    { key: 'match2', type: 'defensive', value: 50 },
+
+    // nad moves
+    { key: 'match2Next', type: 'defensive', value: -1 },
+    { key: 'match3Next', type: 'defensive', value: -1 },
+    { key: 'match4Next', type: 'offensive', value: -1 },
+];
+
+type GoodMove = {
     value: number;
     x: number;
     name: string;
-    type?: MoveType;
-} & any;
+    type: MoveType;
+    extra: any;
+};
+
+type BadMove = {
+    x: number;
+    name: string;
+    type: MoveType;
+    extra: any;
+};
 
 export default function getAiMove() {
     const availableYs = Array.from({ length: COLUMN_COUNT }, (_, i) => state.availableY(i));
 
-    logClear();
+    const getMoves = (basePlay: Play | null) => {
+        const moves: {
+            goodMoves: GoodMove[];
+            badMoves: BadMove[];
+        } = {
+            goodMoves: [],
+            badMoves: [],
+        };
 
-    log(state.player + ' is playing');
-
-    log('availableYs', availableYs);
-
-    const getMoves = (basePlay: Play | null): Move[] => {
-        const moves: Move[] = [];
+        const moveType = basePlay?.player === state.player ? 'offensive' : 'defensive';
 
         if (!basePlay) return moves;
 
         for (const range of RANGES) {
             let encoding = '';
-            const points: number[] = [];
+            let xPoints: number[] = [];
 
-            for (const [xDiff, yDiff] of range.points) {
+            range.points.forEach(([xDiff, yDiff]) => {
                 const [x, y] = [basePlay.x + xDiff, basePlay.y + yDiff];
 
-                points.push(x);
+                xPoints.push(x);
 
-                if (!isWithinBounds(x, y)) {
-                    encoding += POINT_CODE.outOfBounds;
-                    continue;
-                }
+                encoding += (() => {
+                    if (!isWithinBounds(x, y)) return POINT_CODE.outOfBounds;
 
-                if (state.getPlay(x, y)?.player === basePlay.player) {
-                    encoding += POINT_CODE.occupied;
-                    continue;
-                }
+                    if (state.getPlay(x, y)?.player === basePlay.player) return POINT_CODE.occupied;
 
-                const availableY = availableYs[x];
+                    const availableY = availableYs[x];
+                    if (availableY === y) return POINT_CODE.available;
+                    if (availableY !== null && availableY + 1 === y) return POINT_CODE.next;
 
-                if (availableY !== null) {
-                    if (availableY === y) {
-                        encoding += POINT_CODE.available;
-                        continue;
-                    }
+                    return POINT_CODE.unavailable;
+                })();
+            });
 
-                    if (availableY + 1 === y) {
-                        encoding += POINT_CODE.next;
-                        continue;
-                    }
-                }
+            for (const { key, value } of MOVE_MATCH_PRIORITY.filter((m) => m.type === moveType)) {
+                for (const pattern of PATTERNS[key]) {
+                    const matchIndex = encoding.indexOf(pattern);
+                    if (matchIndex == -1) continue;
 
-                encoding += POINT_CODE.unavailable;
-            }
+                    let aIndex = pattern.indexOf(POINT_CODE.available);
+                    let nIndex = pattern.indexOf(POINT_CODE.next);
 
-            for (const { key, matches } of MOVE_VALUES_MATCHES) {
-                for (const match of matches) {
-                    const matches = encoding.indexOf(match);
-                    if (matches > -1) {
-                        const matchIndex = encoding.indexOf(match);
-
-                        let aIndex = match.indexOf('a');
-
-                        const availablePoint = matchIndex + aIndex;
-
-                        moves.push({
-                            value: MOVE_VALUES[key],
-                            x: points[availablePoint],
+                    if (aIndex > -1) {
+                        const availableX = matchIndex + aIndex;
+                        moves.goodMoves.push({
+                            value,
+                            x: xPoints[availableX],
                             name: key,
-                            encoding,
-                            matches,
-                            aIndex,
-                            matchIndex,
-                            availablePoint,
-                            points,
+                            type: moveType,
+                            extra: { encoding, aIndex, matchIndex, availablePoint: availableX, xPoints },
+                        });
+                    }
+
+                    if (nIndex > -1) {
+                        const xToAvoid = matchIndex + nIndex;
+                        moves.badMoves.push({
+                            x: xPoints[xToAvoid],
+                            name: key,
+                            type: moveType,
+                            extra: {
+                                encoding,
+                                aIndex,
+                                matchIndex,
+                                xToAvoid,
+                            },
                         });
                     }
                 }
@@ -154,46 +147,44 @@ export default function getAiMove() {
         return moves;
     };
 
-    const currentPlayer = state.player;
-
     if (!availableYs.filter(NonNullish).length) throw new Error('No available moves');
 
-    const moves = state.plays
-        .flatMap((play) => {
-            const type = play.player === currentPlayer ? 'offensive' : 'defensive';
-            return getMoves(play).map((move) => ({
-                ...move,
-                type,
-                value: move.value + (type === 'defensive' ? -10 : 0),
-            }));
-        })
-        .flat()
-        .sort((a, b) => b.value - a.value);
+    const { badMoves, goodMoves } = state.plays.reduce(
+        (moves, play) => {
+            const { goodMoves, badMoves } = getMoves(play);
 
-    log(moves);
+            moves.goodMoves.push(...goodMoves);
+            moves.badMoves.push(...badMoves);
 
-    if (moves.length === 0) {
-        return 3;
+            return moves;
+        },
+        { goodMoves: [] as GoodMove[], badMoves: [] as BadMove[] }
+    );
+
+    goodMoves.sort((a, b) => b.value - a.value);
+
+    if (goodMoves.length === 0) {
+        const availableXs = availableYs.reduce((xs, y, x) => {
+            if (y !== null) xs.push(x);
+            return xs;
+        }, [] as number[]);
+        const index = getRandomMinMax(0, availableXs.length - 1);
+
+        const x = availableXs[index];
+        return x;
     }
 
-    const terribleMoves = moves.filter((m) => m.value < 0);
-
-    const bestMove = moves.find((m) => m.value > 0 && !terribleMoves.some((tm) => tm.x === m.x));
+    const bestMove = goodMoves[0];
 
     // make the move with the highest value unless that doesn't help the opponent
     if (bestMove) {
-        log('bestMove', bestMove);
         return bestMove.x;
     }
 
     // attempt to make a move without a negative value
-    const bestAvailableYs = availableYs.filter((x) => !moves.some((m) => m.x === x));
-
-    log('bestAvailableYs', bestAvailableYs);
+    const bestAvailableYs = availableYs.filter((x) => !goodMoves.some((m) => m.x === x));
 
     if (bestAvailableYs.length) return bestAvailableYs[0]!;
 
-    log('No available moves without a negative value.');
-
-    return moves[0].x; // make the move with the highest value even if it's negative
+    return goodMoves[0].x; // make the move with the highest value even if it's negative
 }

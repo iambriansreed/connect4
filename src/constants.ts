@@ -9,7 +9,10 @@ export const COLUMN_COUNT = 7;
 
 export const RANGE_LENGTH = 7;
 
-export const RANGES = [
+export const RANGES: {
+    name: string;
+    points: [number, number][];
+}[] = [
     {
         name: 'top to bottom',
         points: [

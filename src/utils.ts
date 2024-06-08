@@ -180,7 +180,7 @@ export const start = () => {
     }
 };
 
-export const reset = async () => {
+export const restart = async () => {
     app.nextChecker.classList.replace('player2', 'player1');
 
     if (state.isDropping) return;

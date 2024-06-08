@@ -19,7 +19,7 @@ declare type App = {
     gameOver: HTMLElement;
     gameTie: HTMLElement;
     gameStart: HTMLElement;
-    resetButtons: HTMLButtonElement[];
+    restartButtons: HTMLButtonElement[];
     startButton: HTMLButtonElement;
     buttons: HTMLButtonElement[];
     spacesWrapper: HTMLElement[];

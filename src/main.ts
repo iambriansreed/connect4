@@ -1,4 +1,4 @@
-import { dropChecker, moveNextChecker, reset, start } from './utils';
+import { dropChecker, moveNextChecker, restart, start } from './utils';
 import './style.scss';
 import { stateInit } from './state';
 // import Ai from './utils/ai';
@@ -18,7 +18,7 @@ function main() {
         gameOver: document.querySelector<HTMLElement>('#game-over')!,
         gameTie: document.querySelector<HTMLElement>('#game-tie')!,
         gameStart: document.querySelector<HTMLElement>('#game-start')!,
-        resetButtons: Array.from(document.querySelectorAll<HTMLButtonElement>('[data-id="reset-btn"]')),
+        restartButtons: Array.from(document.querySelectorAll<HTMLButtonElement>('[data-restart]')),
         startButton: document.querySelector<HTMLButtonElement>('#start-btn')!,
         buttons: Array.from(document.querySelectorAll<HTMLButtonElement>('#board button')),
         spacesWrapper: Array.from(document.querySelectorAll<HTMLElement>('#board .spaces')),
@@ -35,7 +35,7 @@ function main() {
         });
 
         app.startButton.onclick = start;
-        app.resetButtons.forEach((button) => (button.onclick = reset));
+        app.restartButtons.forEach((button) => (button.onclick = restart));
     }
 }
 
