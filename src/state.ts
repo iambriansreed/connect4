@@ -6,7 +6,9 @@ export function stateInit(aiPlayers: Player[]): State {
     let dropping = 0;
     let currentPlayer: Player = 'player1';
 
+    let debug = false;
     return {
+        debug,
         togglePlayer() {
             currentPlayer = currentPlayer === 'player1' ? 'player2' : 'player1';
         },
@@ -14,6 +16,7 @@ export function stateInit(aiPlayers: Player[]): State {
             playList.length = 0;
             playIndexes = {};
             dropping = 0;
+            currentPlayer = 'player1';
         },
         get isPlayerAi() {
             return aiPlayers.includes(currentPlayer);

@@ -1,10 +1,6 @@
 import { COLUMN_COUNT, RANGES, ROW_COUNT } from './constants';
 import { NonNullish, getRandomMinMax } from './utils';
 
-declare module globalThis {
-    var aiLog: any[];
-}
-
 const isWithinBounds = (x: number, y: number) => x >= 0 && x < COLUMN_COUNT && y >= 0 && y < ROW_COUNT;
 
 globalThis.aiLog = [];
@@ -16,10 +12,6 @@ const POINT_CODE = {
     next: 'n',
     outOfBounds: 'x',
 };
-
-type MoveMatch = 'match4' | 'match3' | 'match2' | 'match4Next' | 'match3Next' | 'match2Next';
-
-type MoveType = 'offensive' | 'defensive';
 
 const PATTERNS: Record<MoveMatch, string[]> = {
     match4: ['aooo', 'oooa', 'oaoo', 'ooao'],
@@ -52,21 +44,6 @@ const MOVE_PRIORITY: {
     { key: 'match3Next', type: 'defensive', value: -1 },
     { key: 'match4Next', type: 'offensive', value: -1 },
 ];
-
-type GoodMove = {
-    value: number;
-    x: number;
-    name: string;
-    type: MoveType;
-    extra: any;
-};
-
-type BadMove = {
-    x: number;
-    name: string;
-    type: MoveType;
-    extra: any;
-};
 
 export default function getAiMove() {
     const availableYs = Array.from({ length: COLUMN_COUNT }, (_, i) => state.availableY(i));
@@ -173,9 +150,13 @@ export default function getAiMove() {
     if (bestMove) return bestMove.x;
 
     // attempt to make a move without a negative value
-    const bestAvailableYs = availableYs.filter((x) => !goodMoves.some((m) => m.x === x));
+    const bestAvailableY = availableYs.find((x) => x !== null && !goodMoves.some((m) => m.x === x));
 
-    if (bestAvailableYs.length) return bestAvailableYs[0]!;
+    console.log('bestAvailableY', bestAvailableY);
+
+    if (bestAvailableY) return bestAvailableY;
+
+    console.log('goodMoves', goodMoves);
 
     return goodMoves[0].x; // make the move with the highest value even if it's negative
 }

@@ -1,13 +1,11 @@
-export const WIN_MESSAGE: Record<Player, string> = {
-    player1: 'Red Wins!',
-    player2: 'Yellow Wins!',
+export const WIN_MESSAGE: Record<'robot' | 'human', string> = {
+    human: 'You have won human!',
+    robot: 'Humans drool, robots rule!',
 };
 
 export const ROW_COUNT = 6;
 
 export const COLUMN_COUNT = 7;
-
-export const RANGE_LENGTH = 7;
 
 export const RANGES: {
     name: string;

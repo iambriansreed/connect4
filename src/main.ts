@@ -1,7 +1,6 @@
-import { dropChecker, moveNextChecker, restart, start } from './utils';
+import { dataShow, humanDropChecker, loadGame, moveNextChecker, restart, start } from './utils';
 import './style.scss';
 import { stateInit } from './state';
-// import Ai from './utils/ai';
 
 function main() {
     globalThis.state = stateInit(['player2']);
@@ -11,7 +10,6 @@ function main() {
     const columns = document.querySelector<HTMLElement>('#board .columns')!;
 
     const app: App = (globalThis.app = {
-        debug: false,
         board: document.querySelector<HTMLElement>('#board')!,
         columns,
         size: document.querySelector<HTMLElement>('#size')!,
@@ -30,13 +28,33 @@ function main() {
     // attach events to board
     {
         app.column.forEach((element, index) => {
-            element.onclick = () => dropChecker(index);
-            element.onmouseover = () => moveNextChecker(index);
+            element.addEventListener('click', () => humanDropChecker(index));
+            element.addEventListener('mouseover', () => moveNextChecker(index));
         });
 
-        app.startButton.onclick = start;
-        app.restartButtons.forEach((button) => (button.onclick = restart));
+        app.startButton.addEventListener('click', start);
+        app.restartButtons.forEach((button) => button.addEventListener('click', restart));
     }
+
+    // loadGame([
+    //     { x: 2, y: 0, player: 'player1' },
+    //     { x: 2, y: 1, player: 'player2' },
+    //     { x: 2, y: 2, player: 'player1' },
+    //     { x: 3, y: 0, player: 'player2' },
+    //     { x: 2, y: 3, player: 'player1' },
+    //     { x: 2, y: 4, player: 'player2' },
+    //     { x: 2, y: 5, player: 'player1' },
+    //     { x: 3, y: 1, player: 'player2' },
+    //     { x: 3, y: 2, player: 'player1' },
+    //     { x: 1, y: 0, player: 'player2' },
+    //     { x: 3, y: 3, player: 'player1' },
+    //     { x: 3, y: 4, player: 'player2' },
+    //     { x: 3, y: 5, player: 'player1' },
+    //     { x: 0, y: 0, player: 'player2' },
+    //     { x: 1, y: 1, player: 'player1' },
+    // ]);
+
+    dataShow(app.gameStart);
 }
 
 addEventListener('load', main);

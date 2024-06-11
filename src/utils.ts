@@ -1,5 +1,5 @@
 import getAiMove from './ai';
-import { RANGES, RANGE_LENGTH, ROW_COUNT, WIN_MESSAGE } from './constants';
+import { RANGES, ROW_COUNT, WIN_MESSAGE } from './constants';
 
 async function transition(
     element: HTMLElement,
@@ -46,15 +46,11 @@ export function getRandomMinMax(min: number, max: number) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
-function showElements(...elements: HTMLElement[]) {
-    elements.forEach((el) => (el.style.display = 'inherit'));
-}
-
 function hideElements(...elements: HTMLElement[]) {
-    elements.forEach((el) => (el.style.display = 'none'));
+    elements.forEach((el) => el.classList.remove('show'));
 }
 
-function getWinningSet(state: State): null | Point[] {
+function getWinningSet(): null | Point[] {
     let winSet: Point[] = [];
 
     for (const range of RANGES) {
@@ -62,20 +58,17 @@ function getWinningSet(state: State): null | Point[] {
 
         const lastPlay = state.at(-1);
 
-        for (let i = 0; i < RANGE_LENGTH; i++) {
-            const [xDiff, yDiff] = range.points[i];
-
+        for (const [i, [xDiff, yDiff]] of range.points.entries()) {
             const [xNext, yNext] = [lastPlay.x + xDiff, lastPlay.y + yDiff];
-
             const point = state.getPlay(xNext, yNext);
 
             if (point?.player === lastPlay.player) {
                 winSet.push(point);
                 if (winSet.length === 4) return winSet;
             } else {
-                const remainingRangeLength = RANGE_LENGTH - i - 1;
-                // -
+                const remainingRangeLength = range.points.length - i - 1;
                 winSet = [];
+
                 if (remainingRangeLength < 4) {
                     continue;
                 }
@@ -86,26 +79,30 @@ function getWinningSet(state: State): null | Point[] {
     return null;
 }
 
-const checkForWin = () => {
-    const winningSet = getWinningSet(state);
-    return !!winningSet;
-};
-
 const checkForTie = () => {
     return state.playsLength === 64;
 };
 
-const isGameFinished = () => {
-    if (checkForWin()) {
-        app.winMessage.innerText = WIN_MESSAGE[state.player as Player];
-        showElements(app.gameOver);
-        state.dropping(false);
+const checkerId = ({ x, y }: Point) => `c-${x}-${y}`;
+
+const isGameFinished = async () => {
+    const winningSet = getWinningSet();
+
+    if (winningSet) {
+        app.winMessage.innerText = WIN_MESSAGE[state.isPlayerAi ? 'robot' : 'human'];
+
+        winningSet.forEach((point) => {
+            document.querySelector<HTMLElement>('#' + checkerId(point))?.classList.add('blink');
+        });
+
+        await wait(2000);
+
+        dataShow(app.gameOver);
         return true;
     }
 
     if (checkForTie()) {
-        showElements(app.gameTie);
-        state.dropping(false);
+        dataShow(app.gameTie);
         return true;
     }
 
@@ -121,7 +118,13 @@ const isGameFinished = () => {
     return false;
 };
 
-export const dropChecker = async (x: number) => {
+export async function humanDropChecker(x: number) {
+    if (state.isDropping || state.isPlayerAi) return;
+
+    await dropChecker(x);
+}
+
+const dropChecker = async (x: number) => {
     if (state.isDropping) return;
 
     const yNext = state.availableY(x);
@@ -135,11 +138,13 @@ export const dropChecker = async (x: number) => {
     const startTopPos = app.nextChecker.getBoundingClientRect().top;
     app.nextChecker.style.opacity = '0';
 
+    state.addPlay(x, yNext, state.player);
     {
         // copy nextChecker and add to column
         const newChecker = app.nextChecker.cloneNode(true) as HTMLElement;
         app.column[x].appendChild(newChecker);
         newChecker.setAttribute('style', '');
+        newChecker.id = checkerId({ x, y: yNext });
 
         const endTopPos = newChecker.offsetTop + newChecker.getBoundingClientRect().height;
 
@@ -164,15 +169,14 @@ export const dropChecker = async (x: number) => {
     app.nextChecker.classList.toggle('player2');
     app.nextChecker.style.opacity = '1';
 
-    state.addPlay(x, yNext, state.player);
-
-    if (isGameFinished()) {
+    if (await isGameFinished()) {
         return;
     }
 };
 
 export const start = () => {
     if (state.isDropping) return;
+
     hideElements(app.gameStart);
 
     if (state.isPlayerAi) {
@@ -182,8 +186,6 @@ export const start = () => {
 
 export const restart = async () => {
     app.nextChecker.classList.replace('player2', 'player1');
-
-    if (state.isDropping) return;
 
     // animate state.isDropping checkers
     app.columns.style.top = '0px';
@@ -201,9 +203,9 @@ export const restart = async () => {
         app.columns.style.transition = '';
         app.columns.style.top = '0px';
         [...app.columns.children].forEach((col) => (col.innerHTML = ''));
-        state.reset();
         hideElements(app.gameOver);
         hideElements(app.gameTie);
+        state.reset();
     });
 };
 
@@ -214,3 +216,45 @@ export function moveNextChecker(colNumber: number) {
 export function NonNullish<T>(value: T, _index: number, _array: T[]): value is NonNullable<T> {
     return value !== null && value !== undefined;
 }
+
+export function dataShow(group: HTMLElement, ms: number = 500) {
+    group.classList.add('show');
+
+    const elementsUnordered = Array.from(group.querySelectorAll('[data-show]')).map((element, index) => ({
+        element,
+        index: parseInt(element.getAttribute('data-show') || '0', 10) || index,
+    }));
+
+    const items = elementsUnordered.sort((a, b) => a.index - b.index);
+
+    items.shift()?.element.classList.add('show');
+
+    const interval = setInterval(() => {
+        if (!items.length) {
+            clearInterval(interval);
+            return;
+        }
+        items.shift()?.element.classList.add('show');
+    }, ms);
+}
+
+const putChecker = (x: number) => {
+    const yNext = state.availableY(x);
+    if (typeof yNext !== 'number') throw new Error('Invalid move: ' + JSON.stringify(yNext));
+    const newChecker = app.nextChecker.cloneNode(true) as HTMLElement;
+    app.column[x].appendChild(newChecker);
+    newChecker.setAttribute('style', 'position: relative');
+    newChecker.id = checkerId({ x, y: yNext });
+};
+
+export const loadGame = async (plays: Play[]) => {
+    plays.forEach(({ x }) => {
+        putChecker(x);
+        app.nextChecker.classList.toggle('player1');
+        app.nextChecker.classList.toggle('player2');
+    });
+
+    if (state.isPlayerAi) {
+        dropChecker(getAiMove());
+    }
+};

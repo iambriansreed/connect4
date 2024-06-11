@@ -2,10 +2,10 @@
     margin: 0;
     padding: 0;
     border: 0;
-    font-size: 100%;
     font: inherit;
     vertical-align: baseline;
     box-sizing: border-box;
+    user-select: none;
 }
 
 // reset ^
@@ -31,31 +31,83 @@
     --btnBorderColor: hsl(from var(--boardColor) h s calc(l - 20));
 }
 
+/* Media Query for low resolution  Tablets, Ipads */
+@media (max-width: 767px) {
+    :root {
+        font-size: 22px;
+    }
+}
+
+/* Media Query for Tablets Ipads portrait mode */
+@media (min-width: 768px) and (max-width: 1024px) {
+    :root {
+        font-size: 26px;
+    }
+}
+
+/* Media Query for Laptops and Desktops */
+@media (min-width: 1025px) and (max-width: 1280px) {
+    :root {
+        font-size: 30px;
+    }
+}
+
+/* Media Query for Large screens */
+@media (min-width: 1281px) {
+    :root {
+        font-size: 34px;
+    }
+}
+
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
-        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    font-family: monospace;
     text-align: center;
-    font-size: 22px;
-    display: flex;
-    flex-direction: column;
     background: #222;
     background-size: cover;
 }
 
-body > footer {
-    flex-grow: 1;
+.app {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
-    font-size: 80%;
-    padding: 1.5rem;
-    align-items: flex-end;
-    padding-bottom: 1rem;
-    color: var(--boardColor) !important;
-    a {
+
+    > footer {
+        display: flex;
+        justify-content: space-between;
+        padding: 1.5rem;
+        align-items: flex-end;
+        padding-bottom: 1rem;
         color: var(--boardColor) !important;
+        font-size: smaller;
+        a {
+            color: var(--boardColor) !important;
+        }
+        .version {
+            font-weight: bold;
+        }
     }
-    .version {
-        font-weight: bold;
+}
+
+@keyframes typing {
+    from {
+        width: 0;
+    }
+    to {
+        width: 100%;
+    }
+}
+
+/* The typewriter cursor effect */
+@keyframes blink-caret {
+    from,
+    to {
+        border-color: transparent;
+    }
+    50% {
+        border-color: orange;
     }
 }
 
@@ -139,11 +191,21 @@ body > footer {
     }
 }
 
+.blink {
+    animation: blinker 1s linear infinite;
+}
+
+@keyframes blinker {
+    50% {
+        opacity: 0.4;
+    }
+}
+
 #board {
     position: relative;
     box-sizing: content-box;
     width: fit-content;
-    margin: 2vh auto 2vh;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
     border-radius: 0.5rem;
@@ -263,35 +325,45 @@ body > footer {
     }
 }
 
-#game-tie,
-#game-over,
-#game-start {
+.modal {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     z-index: 100;
-    background-color: rgba(0, 0, 0, 0.75);
-    .modal {
+    justify-content: center;
+    align-items: start;
+
+    &.show {
+        display: flex;
+    }
+
+    .backdrop {
+        background-color: rgba(0, 0, 0, 0.75);
+        position: fixed;
+        inset: 0;
+        z-index: 101;
+    }
+    .dialog {
+        position: relative;
+        z-index: 102;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.75);
+        padding: 1rem;
+        border-radius: 0.5rem;
         background: #444;
         color: #fff;
-        position: absolute;
-        z-index: 101;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.75);
-        padding: 2rem;
-        border-radius: 0.5rem;
-        max-width: 40rem;
+        width: fit-content;
+        max-width: 18rem;
+        margin: 3rem 0;
+
         h1 {
-            font-size: 3rem;
+            font-size: 2rem;
             margin-bottom: 1rem;
         }
         p {
             margin-bottom: 1rem;
+            &:last-child {
+                margin-bottom: 0;
+            }
         }
         footer {
             margin-top: 1rem;
@@ -308,11 +380,22 @@ body > footer {
                 width: 20rem;
             }
             .checker {
-                --size: 5rem;
+                --size: 4rem;
                 margin-bottom: 1rem;
             }
         }
     }
+}
+
+[data-show] {
+    opacity: 0.1;
+    pointer-events: none;
+}
+
+[data-show].show {
+    transition: opacity 0.5s ease-out;
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .btn {

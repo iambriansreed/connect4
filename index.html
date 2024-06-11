@@ -8,91 +8,97 @@
         <meta name="viewport" content="initial-scale=1, maximum-scale=1" />
     </head>
     <body>
-        <div id="game-start" style="display: flex">
-            <div class="modal">
-                <h1>Welcome!</h1>
-                <p>This is a version of Connect 4 that you can play against some genuinely rudimentary AI.</p>
-                <div class="intro">
-                    <div>
+        <div class="app">
+            <div id="board" data-turn="player1">
+                <div class="next">
+                    <div class="opening">
+                        <div class="background">
+                            <div></div>
+                        </div>
+                        <div class="foreground">
+                            <div></div>
+                        </div>
+                    </div>
+                    <div class="track">
+                        <div class="column"></div>
+                        <div class="column"></div>
+                        <div class="column"></div>
+                        <div class="column"></div>
+                        <div class="column"></div>
+                        <div class="column"></div>
+                        <div class="column"></div>
                         <div class="checker player1">
                             <div>
                                 <div><div></div></div>
                             </div>
                         </div>
-                        <p>You are red.</p>
                     </div>
-                    <div>
-                        <div class="checker player2">
-                            <div>
-                                <div><div></div></div>
+                </div>
+                <div class="columns">
+                    <div class="column"></div>
+                    <div class="column"></div>
+                    <div class="column"></div>
+                    <div class="column"></div>
+                    <div class="column"></div>
+                    <div class="column"></div>
+                    <div class="column"></div>
+                </div>
+                <div class="foreground"></div>
+            </div>
+            <footer>
+                <div>Made with ❤️ by <a href="https://iambrian.com">Brian</a>.</div>
+                <div class="version">%version%</div>
+            </footer>
+            <div id="size"></div>
+            <div class="modal" id="game-start">
+                <div class="backdrop"></div>
+                <div class="dialog">
+                    <h1 data-show="1">Hello Human.</h1>
+                    <p data-show="2">I am a robot.</p>
+                    <p data-show="3">Can you beat me?</p>
+                    <div class="intro">
+                        <div data-show="4">
+                            <div class="checker player1">
+                                <div>
+                                    <div><div></div></div>
+                                </div>
                             </div>
+                            <p>human</p>
                         </div>
-                        <p>Computer is yellow.</p>
-                    </div>
-                </div>
-                <footer>
-                    <button type="button" class="btn" id="start-btn">Start</button>
-                </footer>
-            </div>
-        </div>
-        <div id="board" data-turn="player1">
-            <div class="next">
-                <div class="opening">
-                    <div class="background">
-                        <div></div>
-                    </div>
-                    <div class="foreground">
-                        <div></div>
-                    </div>
-                </div>
-                <div class="track">
-                    <div class="column"></div>
-                    <div class="column"></div>
-                    <div class="column"></div>
-                    <div class="column"></div>
-                    <div class="column"></div>
-                    <div class="column"></div>
-                    <div class="column"></div>
-                    <div class="checker player1">
-                        <div>
-                            <div><div></div></div>
+                        <div data-show="5">
+                            <div class="checker player2">
+                                <div>
+                                    <div><div></div></div>
+                                </div>
+                            </div>
+                            <p>robot</p>
                         </div>
                     </div>
+                    <footer data-show="6">
+                        <button type="button" class="btn" id="start-btn">Start</button>
+                    </footer>
                 </div>
             </div>
-            <div class="columns">
-                <div class="column"></div>
-                <div class="column"></div>
-                <div class="column"></div>
-                <div class="column"></div>
-                <div class="column"></div>
-                <div class="column"></div>
-                <div class="column"></div>
+            <div class="modal" id="game-over">
+                <div class="backdrop"></div>
+                <div class="dialog">
+                    <h1 data-show="1"><span id="win-message"></span></h1>
+                    <footer data-show="2">
+                        <button type="button" data-restart class="btn">Reset</button>
+                    </footer>
+                </div>
             </div>
-            <div class="foreground"></div>
-        </div>
-        <div id="game-over">
-            <div class="modal">
-                <h1><span id="win-message"></span></h1>
-                <footer>
-                    <button type="button" data-restart class="btn">Reset</button>
-                </footer>
+            <div class="modal" id="game-tie">
+                <div class="backdrop"></div>
+                <div class="dialog">
+                    <h1>Tie Game!</h1>
+                    <p>That was a good game.</p>
+                    <footer>
+                        <button type="button" data-restart class="btn">Reset</button>
+                    </footer>
+                </div>
             </div>
+            <script type="module" src="/src/main.ts"></script>
         </div>
-        <div id="game-tie">
-            <div class="modal">
-                <h1>Tie Game!</h1>
-                <p>That was impressive!</p>
-                <footer>
-                    <button type="button" data-restart class="btn">Reset</button>
-                </footer>
-            </div>
-        </div>
-        <footer>
-            <div>Made with ❤️ by <a href="https://iambrian.com">Brian</a>.</div>
-            <div class="version">%version%</div>
-        </footer>
-        <div id="size"></div>
-        <script type="module" src="/src/main.ts"></script>
     </body>
 </html>
