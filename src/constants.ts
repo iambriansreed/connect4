@@ -12,7 +12,7 @@ export const RANGES: {
     points: [number, number][];
 }[] = [
     {
-        name: 'top to bottom',
+        name: '|',
         points: [
             [0, 3],
             [0, 2],
@@ -24,7 +24,7 @@ export const RANGES: {
         ],
     },
     {
-        name: 'left to right',
+        name: '--',
         points: [
             [-3, 0],
             [-2, 0],
@@ -36,7 +36,7 @@ export const RANGES: {
         ],
     },
     {
-        name: 'top left to bottom right',
+        name: '\\',
         points: [
             [-3, 3],
             [-2, 2],
@@ -48,7 +48,7 @@ export const RANGES: {
         ],
     },
     {
-        name: 'bottom left to top right',
+        name: '/',
         points: [
             [-3, -3],
             [-2, -2],

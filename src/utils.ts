@@ -1,5 +1,6 @@
+import { stat } from 'fs';
 import getAiMove from './ai';
-import { RANGES, ROW_COUNT, WIN_MESSAGE } from './constants';
+import { COLUMN_COUNT, RANGES, ROW_COUNT, WIN_MESSAGE } from './constants';
 
 async function transition(
     element: HTMLElement,
@@ -80,7 +81,7 @@ function getWinningSet(): null | Point[] {
 }
 
 const checkForTie = () => {
-    return state.playsLength === 64;
+    return state.playsLength === ROW_COUNT * COLUMN_COUNT;
 };
 
 const checkerId = ({ x, y }: Point) => `c-${x}-${y}`;
@@ -97,12 +98,12 @@ const isGameFinished = async () => {
 
         await wait(2000);
 
-        dataShow(app.gameOver);
+        !state.debug && dataShow(app.gameOver);
         return true;
     }
 
     if (checkForTie()) {
-        dataShow(app.gameTie);
+        !state.debug && dataShow(app.gameTie);
         return true;
     }
 
@@ -124,7 +125,22 @@ export async function humanDropChecker(x: number) {
     await dropChecker(x);
 }
 
-const dropChecker = async (x: number) => {
+const createChecker = ({ player, ...point }: Play) => {
+    const newChecker = app.nextChecker.cloneNode(true) as HTMLElement;
+    app.column[point.x].appendChild(newChecker);
+    newChecker.setAttribute('style', '');
+    newChecker.classList.remove('player1', 'player2');
+    newChecker.classList.add(player);
+    newChecker.id = checkerId(point);
+
+    if (state.debug) {
+        newChecker.innerText = state.playsLength.toString();
+    }
+
+    return newChecker;
+};
+
+const dropChecker = async (x: number, skipAnimation = false) => {
     if (state.isDropping) return;
 
     const yNext = state.availableY(x);
@@ -138,31 +154,33 @@ const dropChecker = async (x: number) => {
     const startTopPos = app.nextChecker.getBoundingClientRect().top;
     app.nextChecker.style.opacity = '0';
 
-    state.addPlay(x, yNext, state.player);
+    const nextPlay = { x, y: yNext, player: state.player };
+    state.addPlay(nextPlay);
     {
         // copy nextChecker and add to column
-        const newChecker = app.nextChecker.cloneNode(true) as HTMLElement;
-        app.column[x].appendChild(newChecker);
-        newChecker.setAttribute('style', '');
-        newChecker.id = checkerId({ x, y: yNext });
+        const newChecker = createChecker(nextPlay);
 
         const endTopPos = newChecker.offsetTop + newChecker.getBoundingClientRect().height;
 
-        // position new checker where next next checker was
-        newChecker.style.top = startTopPos + 'px';
-        newChecker.style.position = 'fixed';
+        if (skipAnimation) {
+            //
+        } else {
+            // position new checker where next next checker was
+            newChecker.style.top = startTopPos + 'px';
+            newChecker.style.position = 'fixed';
 
-        // transitionDuration should be dependent on how far the checker travels
-        const inverseY = Math.abs(yNext - ROW_COUNT) + 1;
-        const transitionDuration = inverseY * 75;
+            // transitionDuration should be dependent on how far the checker travels
+            const inverseY = Math.abs(yNext - ROW_COUNT) + 1;
+            const transitionDuration = inverseY * 75;
 
-        newChecker.style.transition =
-            'all ' + transitionDuration + 'ms cubic-bezier(0.33333, 0, 0.66667, 0.33333)';
-        newChecker.style.transform = 'translateY(' + endTopPos + 'px)';
+            newChecker.style.transition =
+                'all ' + transitionDuration + 'ms cubic-bezier(0.33333, 0, 0.66667, 0.33333)';
+            newChecker.style.transform = 'translateY(' + endTopPos + 'px)';
 
-        await wait(transitionDuration, () => {
-            newChecker.setAttribute('style', 'position: relative;');
-        });
+            await wait(transitionDuration, () => {
+                newChecker.setAttribute('style', 'position: relative;');
+            });
+        }
     }
 
     app.nextChecker.classList.toggle('player1');
@@ -174,10 +192,19 @@ const dropChecker = async (x: number) => {
     }
 };
 
-export const start = () => {
+export const start = async (event: MouseEvent) => {
     if (state.isDropping) return;
 
     hideElements(app.gameStart);
+
+    if ((event.target as HTMLButtonElement).dataset.start === 'ai') {
+        state.setAiPlayers('player1', 'player2');
+        state.setDebug();
+    }
+
+    if (globalThis.loadGame) {
+        await loadGame(globalThis.loadGame);
+    }
 
     if (state.isPlayerAi) {
         dropChecker(getAiMove());
@@ -206,6 +233,10 @@ export const restart = async () => {
         hideElements(app.gameOver);
         hideElements(app.gameTie);
         state.reset();
+
+        if (state.isPlayerAi) {
+            dropChecker(getAiMove());
+        }
     });
 };
 
@@ -217,7 +248,7 @@ export function NonNullish<T>(value: T, _index: number, _array: T[]): value is N
     return value !== null && value !== undefined;
 }
 
-export function dataShow(group: HTMLElement, ms: number = 500) {
+export function dataShow(group: HTMLElement, ms: number = 250) {
     group.classList.add('show');
 
     const elementsUnordered = Array.from(group.querySelectorAll('[data-show]')).map((element, index) => ({
@@ -238,21 +269,18 @@ export function dataShow(group: HTMLElement, ms: number = 500) {
     }, ms);
 }
 
-const putChecker = (x: number) => {
-    const yNext = state.availableY(x);
+const putChecker = async (play: Play) => {
+    const yNext = state.availableY(play.x);
     if (typeof yNext !== 'number') throw new Error('Invalid move: ' + JSON.stringify(yNext));
-    const newChecker = app.nextChecker.cloneNode(true) as HTMLElement;
-    app.column[x].appendChild(newChecker);
-    newChecker.setAttribute('style', 'position: relative');
-    newChecker.id = checkerId({ x, y: yNext });
+    createChecker(play);
+    state.addPlay(play);
+    await wait(300);
 };
 
 export const loadGame = async (plays: Play[]) => {
-    plays.forEach(({ x }) => {
-        putChecker(x);
-        app.nextChecker.classList.toggle('player1');
-        app.nextChecker.classList.toggle('player2');
-    });
+    for (const play of plays) {
+        await putChecker(play);
+    }
 
     if (state.isPlayerAi) {
         dropChecker(getAiMove());

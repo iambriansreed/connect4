@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8" />
         <title>Connect 4</title>
+        <link rel="icon" href="128.png" />
         <meta name="description" content="Connect 4 - AI" />
         <meta name="author" content="iambriansreed" />
         <meta name="viewport" content="initial-scale=1, maximum-scale=1" />
@@ -53,9 +54,9 @@
             <div class="modal" id="game-start">
                 <div class="backdrop"></div>
                 <div class="dialog">
-                    <h1 data-show="1">Hello Human.</h1>
+                    <h1 data-show="1" data-start="ai">Hello Human.</h1>
                     <p data-show="2">I am a robot.</p>
-                    <p data-show="3">Can you beat me?</p>
+                    <p data-show="3">Can you beat me<span class="blink">?</span></p>
                     <div class="intro">
                         <div data-show="4">
                             <div class="checker player1">
@@ -75,7 +76,7 @@
                         </div>
                     </div>
                     <footer data-show="6">
-                        <button type="button" class="btn" id="start-btn">Start</button>
+                        <button type="button" class="btn" data-start>Start</button>
                     </footer>
                 </div>
             </div>

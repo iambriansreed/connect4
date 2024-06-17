@@ -46,6 +46,10 @@ const MOVE_PRIORITY: {
 ];
 
 export default function getAiMove() {
+    const aiLogTurn = [];
+
+    aiLogTurn.push(state.player);
+
     const availableYs = Array.from({ length: COLUMN_COUNT }, (_, i) => state.availableY(i));
 
     const getMoves = (basePlay: Play | null) => {
@@ -91,29 +95,27 @@ export default function getAiMove() {
                     let aIndex = pattern.indexOf(POINT_CODE.available);
                     let nIndex = pattern.indexOf(POINT_CODE.next);
 
+                    const availableX = matchIndex + aIndex;
+                    const xToAvoid = matchIndex + nIndex;
+
+                    const extra = { encoding, aIndex, matchIndex, availableX, xToAvoid, xPoints };
+
                     if (aIndex > -1) {
-                        const availableX = matchIndex + aIndex;
                         moves.goodMoves.push({
                             value,
                             x: xPoints[availableX],
                             name: key,
                             type: moveType,
-                            extra: { encoding, aIndex, matchIndex, availablePoint: availableX, xPoints },
+                            extra,
                         });
                     }
 
                     if (nIndex > -1) {
-                        const xToAvoid = matchIndex + nIndex;
                         moves.badMoves.push({
                             x: xPoints[xToAvoid],
                             name: key,
                             type: moveType,
-                            extra: {
-                                encoding,
-                                aIndex,
-                                matchIndex,
-                                xToAvoid,
-                            },
+                            extra,
                         });
                     }
                 }
@@ -123,7 +125,10 @@ export default function getAiMove() {
         return moves;
     };
 
-    if (!availableYs.filter(NonNullish).length) throw new Error('No available moves');
+    if (!availableYs.filter(NonNullish).length) {
+        aiLog.push(['No available moves', availableYs]);
+        throw new Error('No available moves');
+    }
 
     const goodMoves: GoodMove[] = [];
     const badMoves: BadMove[] = [];
@@ -136,27 +141,49 @@ export default function getAiMove() {
 
     goodMoves.sort((a, b) => b.value - a.value);
 
-    if (goodMoves.length === 0) {
-        const availableXs = availableYs.reduce((xs, y, x) => {
-            if (y !== null) xs.push(x);
-            return xs;
-        }, [] as number[]);
-        const index = getRandomMinMax(0, availableXs.length - 1);
-        return availableXs[index];
-    }
+    aiLogTurn.push({ goodMoves, badMoves });
 
-    // make the move with the highest value that does not help the opponent
-    const bestMove = goodMoves.find((m) => !badMoves.some((bm) => bm.x === m.x));
-    if (bestMove) return bestMove.x;
+    const getX = () => {
+        // if there are no good moves, pick a random available column
+        if (goodMoves.length === 0) {
+            const availableXs = availableYs.reduce((xs, y, x) => {
+                if (y !== null) xs.push(x);
+                return xs;
+            }, [] as number[]);
+            const index = getRandomMinMax(0, availableXs.length - 1);
 
-    // attempt to make a move without a negative value
-    const bestAvailableY = availableYs.find((x) => x !== null && !goodMoves.some((m) => m.x === x));
+            aiLogTurn.push('random', { availableXs });
+            return availableXs[index];
+        }
 
-    console.log('bestAvailableY', bestAvailableY);
+        if (goodMoves[0].value === 100) {
+            aiLogTurn.push('win the game');
+            return goodMoves[0].x;
+        }
 
-    if (bestAvailableY) return bestAvailableY;
+        if (goodMoves[0].value === 90) {
+            aiLogTurn.push('save the game');
+            return goodMoves[0].x;
+        }
 
-    console.log('goodMoves', goodMoves);
+        // make the move with the highest value that does not help the opponent
+        const bestMove = goodMoves.find((m) => !badMoves.some((bm) => bm.x === m.x));
+        if (bestMove) {
+            aiLogTurn.push(['best non bad move', { bestMove }]);
+            return bestMove.x;
+        }
 
-    return goodMoves[0].x; // make the move with the highest value even if it's negative
+        // attempt to make a move without a negative value
+        const bestAvailableY = availableYs.find((x) => x !== null && goodMoves.some((m) => m.x === x));
+        if (bestAvailableY) {
+            aiLogTurn.push(['bestAvailableY', bestAvailableY]);
+            return bestAvailableY;
+        }
+
+        aiLogTurn.push(['goodMoves[0].x', goodMoves]);
+        return goodMoves[0].x; // make the move with the highest value even if it's negative
+    };
+
+    aiLog.push(aiLogTurn);
+    return getX();
 }

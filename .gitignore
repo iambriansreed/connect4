@@ -60,3 +60,6 @@ typings/
 *.pem
 build
 dist
+.
+.ai-log.json
+favicon.sketch
