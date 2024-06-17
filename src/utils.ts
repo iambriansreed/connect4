@@ -1,4 +1,3 @@
-import { stat } from 'fs';
 import getAiMove from './ai';
 import { COLUMN_COUNT, RANGES, ROW_COUNT, WIN_MESSAGE } from './constants';
 
