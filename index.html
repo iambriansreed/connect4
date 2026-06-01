@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
     <head>
         <meta charset="utf-8" />
@@ -7,11 +7,23 @@
         <meta name="author" content="iambriansreed" />
         <meta name="viewport" content="initial-scale=1, maximum-scale=1" />
         <title>Connect 4</title>
-      <script type="module" crossorigin src="/assets/index-DIXrLkWh.js"></script>
-      <link rel="stylesheet" crossorigin href="/assets/index-kCn3dnnJ.css">
+      <script type="module" crossorigin src="/assets/index-B_dLPGgE.js"></script>
+      <link rel="stylesheet" crossorigin href="/assets/index-Beo3d-oM.css">
     </head>
     <body>
         <div class="app">
+            <div class="splash" id="splash">
+                <div class="splash-inner">
+                    <div class="dots">
+                        <span class="dot p1"></span>
+                        <span class="dot p2"></span>
+                        <span class="dot p1"></span>
+                        <span class="dot p2"></span>
+                    </div>
+                    <h1 class="splash-title">Connect 4</h1>
+                    <p class="splash-subtitle">Crappy AI vs Human</p>
+                </div>
+            </div>
             <div id="board" data-turn="player1">
                 <div class="next">
                     <div class="opening">
@@ -85,7 +97,7 @@
             <div class="modal" id="game-over">
                 <div class="backdrop"></div>
                 <div class="dialog">
-                    <h1 data-show="1"><span id="win-message"></span></h1>
+                    <h1 data-show="1"><span id="win-message">Win</span></h1>
                     <footer data-show="2">
                         <button type="button" data-restart class="btn">Reset</button>
                     </footer>
