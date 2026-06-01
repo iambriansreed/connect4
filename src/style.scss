@@ -13,57 +13,62 @@
 :root {
     --size: 12vmin;
     --borderWidth: calc(var(--size) * 0.15);
-    --player1color: rgba(203, 44, 43, 1);
-    --player2color: rgba(236, 216, 86, 1);
-    --boardColor: rgb(43, 85, 184);
 
+    // refined, flat palette
+    --player1color: #f43f5e; // coral
+    --player2color: #fbbf24; // amber
+    --boardColor: #4f46e5; // indigo
+    --boardColorDeep: #4338ca;
+    --wellColor: #0b1120; // recessed hole color
+    --pageColor: #0f172a; // slate-900
+
+    // structural mask that punches the circular holes in the board face
     --gradientCircle: radial-gradient(
         ellipse at center,
-        rgba(43, 85, 184, 0) 1%,
-        rgba(43, 85, 184, 0) 51%,
-        rgba(43, 85, 184, 0.3) 52%,
-        rgba(43, 85, 184, 0.5) 54%,
-        rgba(43, 85, 184, 1) 55%,
-        rgba(43, 85, 184, 1) 100%
+        rgba(11, 17, 32, 0) 50%,
+        rgba(11, 17, 32, 0.35) 51%,
+        var(--boardColor) 55%,
+        var(--boardColor) 100%
     );
 
-    --btnColor: rgba(255, 255, 255, 0.95);
-    --btnBorderColor: hsl(from var(--boardColor) h s calc(l - 20));
+    --textColor: #f8fafc;
+    --mutedColor: #94a3b8;
 }
 
 /* Media Query for low resolution  Tablets, Ipads */
 @media (max-width: 767px) {
     :root {
-        font-size: 22px;
+        font-size: 20px;
     }
 }
 
 /* Media Query for Tablets Ipads portrait mode */
 @media (min-width: 768px) and (max-width: 1024px) {
     :root {
-        font-size: 26px;
+        font-size: 24px;
     }
 }
 
 /* Media Query for Laptops and Desktops */
 @media (min-width: 1025px) and (max-width: 1280px) {
     :root {
-        font-size: 30px;
+        font-size: 28px;
     }
 }
 
 /* Media Query for Large screens */
 @media (min-width: 1281px) {
     :root {
-        font-size: 34px;
+        font-size: 32px;
     }
 }
 
 body {
-    font-family: monospace;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
+        sans-serif;
     text-align: center;
-    background: #222;
-    background-size: cover;
+    color: var(--textColor);
+    background: var(--pageColor);
 }
 
 .app {
@@ -77,37 +82,111 @@ body {
     > footer {
         display: flex;
         justify-content: space-between;
-        padding: 1.5rem;
+        padding: 1.25rem 1.5rem;
         align-items: flex-end;
-        padding-bottom: 1rem;
-        color: var(--boardColor) !important;
-        font-size: smaller;
+        color: var(--mutedColor);
+        font-size: 0.7rem;
+        letter-spacing: 0.02em;
         a {
-            color: var(--boardColor) !important;
+            color: var(--textColor);
+            text-decoration: none;
+            border-bottom: 1px solid var(--boardColor);
         }
         .version {
-            font-weight: bold;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
         }
     }
 }
 
-@keyframes typing {
-    from {
-        width: 0;
+// ---- splash / title load ----
+.splash {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--pageColor);
+    transition: transform 0.6s cubic-bezier(0.7, 0, 0.3, 1);
+    will-change: transform;
+
+    &.hide {
+        transform: translateY(-100%);
+        pointer-events: none;
     }
-    to {
-        width: 100%;
+
+    .splash-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .dots {
+        display: flex;
+        gap: 0.85rem;
+    }
+
+    .dot {
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 50%;
+        transform: scale(0);
+        animation: dotPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        box-shadow: inset 0 0 0 0.22rem rgba(0, 0, 0, 0.18);
+
+        &.p1 {
+            background: var(--player1color);
+        }
+        &.p2 {
+            background: var(--player2color);
+        }
+        &:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+        &:nth-child(2) {
+            animation-delay: 0.25s;
+        }
+        &:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        &:nth-child(4) {
+            animation-delay: 0.55s;
+        }
+    }
+
+    .splash-title {
+        font-size: 3rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        opacity: 0;
+        transform: translateY(10px);
+        animation: titleIn 0.6s ease-out 0.75s forwards;
+    }
+
+    .splash-subtitle {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: var(--mutedColor);
+        letter-spacing: 0.01em;
+        margin-top: -0.75rem;
+        opacity: 0;
+        transform: translateY(10px);
+        animation: titleIn 0.6s ease-out 1s forwards;
     }
 }
 
-/* The typewriter cursor effect */
-@keyframes blink-caret {
-    from,
+@keyframes dotPop {
     to {
-        border-color: transparent;
+        transform: scale(1);
     }
-    50% {
-        border-color: orange;
+}
+
+@keyframes titleIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
@@ -121,73 +200,47 @@ body {
     display: none;
 }
 
+// ---- checkers: flat discs with a single inset accent ring ----
 .checker {
-    background: green;
-    border-radius: 100%;
+    border-radius: 50%;
     width: var(--size);
     height: var(--size);
     z-index: 2;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: var(--player1color);
 
     > div {
-        border-radius: 100%;
-        border: solid 1px rgba(0, 0, 0, 0.25);
-        width: calc(var(--size) * 0.95);
-        height: calc(var(--size) * 0.95);
+        width: 100%;
+        height: 100%;
+        border: 0;
+        background: none;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(
-            60deg,
-            //
-            rgba(255, 255, 255, 0.2) 0%,
-            //
-            rgba(255, 255, 255, 0.1) 10%,
-            //
-            rgba(0, 0, 0, 0.2) 100%
-        );
 
         > div {
-            border-radius: 100%;
-            width: calc(var(--size) * 0.75);
-            height: calc(var(--size) * 0.75);
-            background: green;
+            border-radius: 50%;
+            width: 62%;
+            height: 62%;
+            background: none;
+            // recessed inner ring — flat, no gradient
+            box-shadow: inset 0 0 0 calc(var(--size) * 0.045)
+                rgba(0, 0, 0, 0.18);
+
             > div {
-                border-radius: 100%;
-                width: calc(var(--size) * 0.75);
-                height: calc(var(--size) * 0.75);
-                background: linear-gradient(
-                    170deg,
-                    //
-                    rgba(255, 255, 255, 0.7) 0%,
-                    //
-                    rgba(255, 255, 255, 0.1) 5%,
-                    //
-                    rgba(0, 0, 0, 0.2) 100%
-                );
-                border: solid 1px rgba(0, 0, 0, 0.25);
+                display: none;
             }
         }
     }
 
     &.player1 {
         background: var(--player1color);
-        > div {
-            > div {
-                background: var(--player1color);
-            }
-        }
     }
 
     &.player2 {
         background: var(--player2color);
-        > div {
-            > div {
-                background: var(--player2color);
-            }
-        }
     }
 }
 
@@ -208,7 +261,7 @@ body {
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    border-radius: 0.5rem;
+    border-radius: 1.25rem;
     overflow: visible;
 
     .next {
@@ -246,8 +299,8 @@ body {
             background: var(--boardColor);
             border: solid var(--borderWidth) var(--boardColor);
             border-bottom-width: 0;
-            border-top-left-radius: 0.5rem;
-            border-top-right-radius: 0.5rem;
+            border-top-left-radius: 1.25rem;
+            border-top-right-radius: 1.25rem;
             height: calc(var(--borderWidth) * 2.75);
             bottom: 0;
             left: 0;
@@ -258,7 +311,7 @@ body {
                 z-index: 1;
                 background: transparent;
                 div {
-                    background-color: rgba(0, 0, 0, 0.25);
+                    background-color: rgba(0, 0, 0, 0.22);
                     width: 100%;
                     height: calc(var(--borderWidth) * 0.5);
                     margin-top: calc(var(--borderWidth) * 0.5);
@@ -274,7 +327,7 @@ body {
                 top: var(--borderWidth);
                 border-bottom: solid var(--borderWidth) var(--boardColor);
                 div {
-                    background-color: rgba(0, 0, 0, 0.25);
+                    background-color: rgba(0, 0, 0, 0.22);
                     width: 100%;
                     height: calc(var(--borderWidth) * 0.5);
                     margin-bottom: calc(var(--borderWidth) * 0.5);
@@ -297,8 +350,8 @@ body {
         pointer-events: none;
         border: solid (var(--borderWidth)) var(--boardColor);
         border-top: none;
-        border-bottom-left-radius: 0.5rem;
-        border-bottom-right-radius: 0.5rem;
+        border-bottom-left-radius: 1.25rem;
+        border-bottom-right-radius: 1.25rem;
         margin-bottom: -1.35vmin;
     }
 
@@ -308,6 +361,7 @@ body {
         position: relative;
         margin-right: 1.35vmin;
         margin-left: 1.35vmin;
+        background: var(--wellColor);
 
         .column {
             display: flex;
@@ -331,14 +385,23 @@ body {
     inset: 0;
     z-index: 100;
     justify-content: center;
-    align-items: start;
+    align-items: center;
+    transition: transform 0.55s cubic-bezier(0.7, 0, 0.3, 1);
+    will-change: transform;
 
     &.show {
         display: flex;
     }
 
+    &.slide-out {
+        transform: translateY(-100%);
+        pointer-events: none;
+    }
+
     .backdrop {
-        background-color: rgba(0, 0, 0, 0.75);
+        background-color: rgba(2, 6, 23, 0.6);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
         position: fixed;
         inset: 0;
         z-index: 101;
@@ -346,66 +409,108 @@ body {
     .dialog {
         position: relative;
         z-index: 102;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.75);
-        padding: 1rem;
-        border-radius: 0.5rem;
-        background: #444;
-        color: #fff;
+        box-shadow: 0 24px 60px rgba(2, 6, 23, 0.55);
+        padding: 2rem;
+        border-radius: 1.5rem;
+        background: rgba(30, 41, 59, 0.82);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: var(--textColor);
         width: fit-content;
-        max-width: 18rem;
-        margin: 3rem 0;
+        max-width: 20rem;
 
         h1 {
             font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
             margin-bottom: 1rem;
         }
         p {
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
+            color: var(--mutedColor);
             &:last-child {
                 margin-bottom: 0;
             }
         }
         footer {
-            margin-top: 1rem;
+            margin-top: 1.5rem;
         }
         .intro {
             display: flex;
             justify-content: center;
-            gap: 2rem;
+            gap: 2.5rem;
+            margin-top: 1.5rem;
             > div {
                 display: flex;
                 justify-content: center;
                 flex-direction: column;
                 align-items: center;
-                width: 20rem;
+            }
+            p {
+                margin: 0;
+                font-weight: 600;
+                color: var(--textColor);
+                text-transform: lowercase;
             }
             .checker {
                 --size: 4rem;
-                margin-bottom: 1rem;
+                margin-bottom: 0.75rem;
             }
         }
     }
 }
 
+// the intro is a full-screen slide (like the title), not a floating card
+#game-start {
+    .backdrop {
+        background: var(--pageColor);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
+    .dialog {
+        background: none;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        border: 0;
+        box-shadow: none;
+        max-width: 26rem;
+    }
+}
+
 [data-show] {
-    opacity: 0.1;
+    opacity: 0;
+    transform: translateY(4px);
     pointer-events: none;
 }
 
 [data-show].show {
-    transition: opacity 0.5s ease-out;
+    transition: opacity 0.4s ease-out, transform 0.4s ease-out;
     opacity: 1;
+    transform: translateY(0);
     pointer-events: auto;
 }
 
 .btn {
     background: var(--boardColor);
-    color: var(--btnColor);
-    border: solid 1px var(--btnBorderColor);
-    border-radius: 0.5em;
-    padding: 0.5em 1em;
+    color: #fff;
+    border-radius: 0.85rem;
+    padding: 0.7em 1.6em;
     font: inherit;
+    font-size: 1.4rem;
+    font-weight: 600;
     cursor: pointer;
-    font-size: 1.75rem;
-    font-weight: 500;
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35);
+    transition: background 0.2s ease, transform 0.12s ease,
+        box-shadow 0.2s ease;
+
+    &:hover {
+        background: #6366f1;
+        transform: translateY(-2px);
+        box-shadow: 0 12px 26px rgba(79, 70, 229, 0.45);
+    }
+    &:active {
+        transform: translateY(0);
+        box-shadow: 0 6px 14px rgba(79, 70, 229, 0.35);
+    }
 }

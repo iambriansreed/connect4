@@ -194,7 +194,11 @@ const dropChecker = async (x: number, skipAnimation = false) => {
 export const start = async (event: MouseEvent) => {
     if (state.isDropping) return;
 
+    // slide the intro modal up and out to reveal the board
+    app.gameStart.classList.add('slide-out');
+    await wait(550);
     hideElements(app.gameStart);
+    app.gameStart.classList.remove('slide-out');
 
     if ((event.target as HTMLButtonElement).dataset.start === 'ai') {
         state.setAiPlayers('player1', 'player2');

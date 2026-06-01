@@ -37,7 +37,22 @@ function main() {
         app.restartButtons.forEach((button) => button.addEventListener('click', restart));
     }
 
-    dataShow(app.gameStart);
+    // show the title splash first, then hand off to the intro modal
+    const splash = document.querySelector<HTMLElement>('#splash');
+    if (splash) {
+        // render the info slide's background behind the splash (its content
+        // stays hidden) so sliding the title up reveals slide 2, not the board
+        app.gameStart.classList.add('show');
+        setTimeout(() => {
+            splash.classList.add('hide');
+            setTimeout(() => {
+                splash.style.display = 'none';
+                dataShow(app.gameStart);
+            }, 600);
+        }, 1900);
+    } else {
+        dataShow(app.gameStart);
+    }
 }
 
 addEventListener('load', main);
