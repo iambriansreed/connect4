@@ -79,11 +79,14 @@ body {
     flex-direction: column;
     justify-content: space-between;
 
+    // Credit in the middle column, version on the right; equal outer columns keep the
+    // credit centred whatever the version's length.
     > footer {
-        display: flex;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 1rem;
         padding: 1.25rem 1.5rem;
-        align-items: flex-end;
+        align-items: end;
         color: var(--mutedColor);
         font-size: 0.7rem;
         letter-spacing: 0.02em;
@@ -92,7 +95,20 @@ body {
             text-decoration: none;
             border-bottom: 1px solid var(--boardColor);
         }
+        .credit {
+            grid-column: 2;
+        }
+        // The credit's heart, in the human player's colour, sized and seated like a letter
+        .heart {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            vertical-align: -0.125em;
+            fill: var(--player1color);
+        }
         .version {
+            grid-column: 3;
+            justify-self: end;
             font-weight: 600;
             font-variant-numeric: tabular-nums;
         }
